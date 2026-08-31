@@ -1,0 +1,6519 @@
+local a=game:GetService"UserInputService"
+local b=game:GetService"Players"
+local c=game:GetService"Workspace"
+local d=game:GetService"ReplicatedStorage"
+local e=game:GetService"HttpService"
+local f=game:GetService"GuiService"
+local g=game:GetService"Lighting"
+local h=game:GetService"RunService"
+local i=game:GetService"Stats"
+local j=game:GetService"CoreGui"
+local k=game:GetService"Debris"
+local l=game:GetService"TweenService"
+local m=game:GetService"SoundService"
+
+local n=Vector2.new local o=
+Vector3.new
+local p=UDim2.new
+local q=UDim.new local r=
+Rect.new
+local s=CFrame.new
+local t=s()local u=
+t.PointToObjectSpace local v=
+CFrame.Angles
+local w=UDim2.fromOffset
+
+local x=Color3.new
+local y=Color3.fromRGB
+local z=Color3.fromHex local A=
+Color3.fromHSV
+local B=ColorSequence.new
+local C=ColorSequenceKeypoint.new
+local D=NumberSequence.new
+local E=NumberSequenceKeypoint.new
+
+local F=c.CurrentCamera or c:FindFirstChildOfClass"Camera"
+c:GetPropertyChangedSignal"CurrentCamera":Connect(function()
+local G=c.CurrentCamera
+if G then
+F=G
+end
+end)
+local G=b.LocalPlayer
+local H=G:GetMouse()
+local I=f:GetGuiInset().Y
+
+G:GetPropertyChangedSignal"Team":Connect(function()
+if esp then
+esp.refresh_elements()
+end
+end)
+
+local J=math.max
+local K=math.floor
+local L=math.min
+local M=math.abs local N=
+math.noise
+local O=math.rad local P=
+math.random local Q=
+math.pow local R=
+math.sin local S=
+math.pi
+local T=math.tan
+local U=math.atan2
+local V=math.clamp
+
+local W=table.insert
+local X=table.find
+local Y=table.remove
+local Z=table.concat
+
+local _={}
+
+do
+local aa=math.pi
+local ab=math.abs
+local ac=math.clamp
+local ad=math.exp
+local ae=math.rad
+local af=math.sign
+local ag=math.sqrt
+local ah=math.tan
+
+local ai=game:GetService"ContextActionService"
+local aj=game:GetService"Players"
+local ak=game:GetService"RunService"
+local al=game:GetService"StarterGui"
+local am=game:GetService"UserInputService"
+local an=game:GetService"Workspace"
+
+local ao=aj.LocalPlayer
+if not ao then
+aj:GetPropertyChangedSignal"LocalPlayer":Wait()
+ao=aj.LocalPlayer
+end
+
+local ap=an.CurrentCamera
+an:GetPropertyChangedSignal"CurrentCamera":Connect(function()
+local aq=an.CurrentCamera
+if aq then
+ap=aq
+end
+end)local aq=
+
+Enum.ContextActionPriority.Low.Value
+local ar=Enum.ContextActionPriority.High.Value local as=
+{Enum.KeyCode.LeftShift,Enum.KeyCode.P}
+
+local at=Vector3.new(1,1,1)*64
+local au=Vector2.new(0.75,1)*8
+local av=300
+
+local aw=ae(90)
+
+local ax=10
+local ay=10
+local az=10
+
+local aA={}do
+aA.__index=aA
+
+function aA.new(aB,aC)
+local aD=setmetatable({},aA)
+aD.f=aB
+aD.p=aC
+aD.v=aC*0
+return aD
+end
+
+function aA.Update(aB,aC,aD)
+local aE=aB.f*2*aa
+local aF=aB.p
+local aG=aB.v
+
+local aH=aD-aF
+local aI=ad(-aE*aC)
+
+local aJ=aD+(aG*aC-aH*(aE*aC+1))*aI
+local aK=(aE*aC*(aH*aE-aG)+aG)*aI
+
+aB.p=aJ
+aB.v=aK
+
+return aJ
+end
+
+function aA.Reset(aB,aC)
+aB.p=aC
+aB.v=aC*0
+end
+end
+
+local aB=Vector3.new()
+local aC=Vector2.new()
+local aD=0
+
+local aE
+
+local aF=aA.new(ax,Vector3.new())
+local aG=aA.new(ay,Vector2.new())
+local aH=aA.new(az,0)
+
+local aI={}do
+local aJ do
+local aK=2.0
+local aL=0.15
+
+local function fCurve(aM)
+return(ad(aK*aM)-1)/(ad(aK)-1)
+end
+
+local function fDeadzone(aM)
+return fCurve((aM-aL)/(1-aL))
+end
+
+function aJ(aM)
+return af(aM)*ac(fDeadzone(ab(aM)),0,1)
+end
+end
+
+local aK={
+ButtonX=0,
+ButtonY=0,
+DPadDown=0,
+DPadUp=0,
+ButtonL2=0,
+ButtonR2=0,
+Thumbstick1=Vector2.new(),
+Thumbstick2=Vector2.new(),
+}
+
+local aL={
+W=0,
+A=0,
+S=0,
+D=0,
+E=0,
+Q=0,
+U=0,
+H=0,
+J=0,
+K=0,
+I=0,
+Y=0,
+Up=0,
+Down=0,
+LeftShift=0,
+RightShift=0,
+}
+
+local aM={
+Delta=Vector2.new(),
+MouseWheel=0,
+}
+
+local aN=Vector3.new(1,1,1)
+local aO=Vector3.new(1,1,1)
+local aP=Vector2.new(1,1)*(aa/64)
+local aQ=Vector2.new(1,1)*(aa/8)
+local aR=1.0
+local aS=0.25
+local aT=0.75
+local aU=0.25
+
+local aV=1
+
+function aI.Vel(aW)
+aV=ac(aV+aW*(aL.Up-aL.Down)*aT,0.01,4)
+
+local aX=Vector3.new(
+aJ(aK.Thumbstick1.X),
+aJ(aK.ButtonR2)-aJ(aK.ButtonL2),
+aJ(-aK.Thumbstick1.Y)
+)*aN
+
+local aY=Vector3.new(
+aL.D-aL.A+aL.K-aL.H,
+aL.E-aL.Q+aL.I-aL.Y,
+aL.S-aL.W+aL.J-aL.U
+)*aO
+
+local aZ=am:IsKeyDown(Enum.KeyCode.LeftShift)or am:IsKeyDown(Enum.KeyCode.RightShift)
+
+return(aX+aY)*(aV*(aZ and aU or 1))
+end
+
+function aI.Pan(aW)
+local aX=Vector2.new(
+aJ(aK.Thumbstick2.Y),
+aJ(-aK.Thumbstick2.X)
+)*aQ
+local aY=aM.Delta*aP
+aM.Delta=Vector2.new()
+return aX+aY
+end
+
+function aI.Fov(aW)
+local aX=(aK.ButtonX-aK.ButtonY)*aS
+local aY=aM.MouseWheel*aR
+aM.MouseWheel=0
+return aX+aY
+end
+
+do
+local function Keypress(aW,aX,aY)
+aL[aY.KeyCode.Name]=aX==Enum.UserInputState.Begin and 1 or 0
+return Enum.ContextActionResult.Sink
+end
+
+local function GpButton(aW,aX,aY)
+aK[aY.KeyCode.Name]=aX==Enum.UserInputState.Begin and 1 or 0
+return Enum.ContextActionResult.Sink
+end
+
+local function MousePan(aW,aX,aY)
+local aZ=aY.Delta
+aM.Delta=Vector2.new(-aZ.y,-aZ.x)
+return Enum.ContextActionResult.Sink
+end
+
+local function Thumb(aW,aX,aY)
+aK[aY.KeyCode.Name]=aY.Position
+return Enum.ContextActionResult.Sink
+end
+
+local function Trigger(aW,aX,aY)
+aK[aY.KeyCode.Name]=aY.Position.z
+return Enum.ContextActionResult.Sink
+end
+
+local function MouseWheel(aW,aX,aY)
+aM[aY.UserInputType.Name]=-aY.Position.z
+return Enum.ContextActionResult.Sink
+end
+
+local function Zero(aW)
+for aX,aY in pairs(aW)do
+aW[aX]=aY*0
+end
+end
+
+function aI.StartCapture()
+ai:BindActionAtPriority("FreecamKeyboard",Keypress,false,ar,
+Enum.KeyCode.W,Enum.KeyCode.U,
+Enum.KeyCode.A,Enum.KeyCode.H,
+Enum.KeyCode.S,Enum.KeyCode.J,
+Enum.KeyCode.D,Enum.KeyCode.K,
+Enum.KeyCode.E,Enum.KeyCode.I,
+Enum.KeyCode.Q,Enum.KeyCode.Y,
+Enum.KeyCode.Up,Enum.KeyCode.Down
+)
+ai:BindActionAtPriority("FreecamMousePan",MousePan,false,ar,Enum.UserInputType.MouseMovement)
+ai:BindActionAtPriority("FreecamMouseWheel",MouseWheel,false,ar,Enum.UserInputType.MouseWheel)
+ai:BindActionAtPriority("FreecamGamepadButton",GpButton,false,ar,Enum.KeyCode.ButtonX,Enum.KeyCode.ButtonY)
+ai:BindActionAtPriority("FreecamGamepadTrigger",Trigger,false,ar,Enum.KeyCode.ButtonR2,Enum.KeyCode.ButtonL2)
+ai:BindActionAtPriority("FreecamGamepadThumbstick",Thumb,false,ar,Enum.KeyCode.Thumbstick1,Enum.KeyCode.Thumbstick2)
+end
+
+function aI.StopCapture()
+aV=1
+Zero(aK)
+Zero(aL)
+Zero(aM)
+ai:UnbindAction"FreecamKeyboard"
+ai:UnbindAction"FreecamMousePan"
+ai:UnbindAction"FreecamMouseWheel"
+ai:UnbindAction"FreecamGamepadButton"
+ai:UnbindAction"FreecamGamepadTrigger"
+ai:UnbindAction"FreecamGamepadThumbstick"
+end
+end
+end
+
+local function GetFocusDistance(aJ)
+local aK=0.1
+local aL=ap.ViewportSize
+local aM=2*ah(aD/2)
+local aN=aL.x/aL.y*aM
+local aO=aJ.rightVector
+local aP=aJ.upVector
+local aQ=aJ.lookVector
+
+local aR=Vector3.new()
+local aS=512
+
+for aT=0,1,0.5 do
+for aU=0,1,0.5 do
+local aV=(aT-0.5)*aN
+local aW=(aU-0.5)*aM
+local aX=aO*aV-aP*aW+aQ
+local aY=aJ.p+aX*aK local
+aZ, a_=an:FindPartOnRay(Ray.new(aY,aX.unit*aS))
+local a0=(a_-aY).magnitude
+if aS>a0 then
+aS=a0
+aR=aX.unit
+end
+end
+end
+
+return aQ:Dot(aR)*aS
+end
+
+local function StepFreecam(aJ)
+
+if aE then
+local aK=aF:Update(aJ,aI.Vel(aJ))
+local aL=aH:Update(aJ,aI.Fov(aJ))
+
+local aM=ag(ah(ae(35))/ah(ae(aD/2)))
+aD=ac(aD+aL*av*(aJ/aM),1,120)
+
+local aN=aE*CFrame.new(aK*at*aJ)
+aB=aN.Position
+aC=Vector2.new(aN:toEulerAnglesYXZ())
+
+ap.CFrame=aN
+ap.Focus=aN*CFrame.new(0,0,-GetFocusDistance(aN))
+ap.FieldOfView=aD
+return
+end
+
+local aK=aF:Update(aJ,aI.Vel(aJ))
+local aL=aG:Update(aJ,aI.Pan(aJ))
+local aM=aH:Update(aJ,aI.Fov(aJ))
+
+local aN=ag(ah(ae(35))/ah(ae(aD/2)))
+
+aD=ac(aD+aM*av*(aJ/aN),1,120)
+aC=aC+aL*au*(aJ/aN)
+aC=Vector2.new(ac(aC.x,-aw,aw),aC.y%(2*aa))
+
+local aO=CFrame.new(aB)*CFrame.fromOrientation(aC.x,aC.y,0)*CFrame.new(aK*at*aJ)
+aB=aO.p
+
+ap.CFrame=aO
+ap.Focus=aO*CFrame.new(0,0,-GetFocusDistance(aO))
+ap.FieldOfView=aD
+end
+
+local aJ={}do
+local aK
+local aL
+local aM
+local aN
+local aO
+local aP
+local aQ={}
+local aR={
+Backpack=true,
+Chat=true,
+Health=true,
+PlayerList=true,
+}
+local aS={
+BadgesNotificationsActive=true,
+PointsNotificationsActive=true,
+}
+
+function aJ.Push()
+
+aP=ap.FieldOfView
+ap.FieldOfView=70
+
+aM=ap.CameraType
+ap.CameraType=Enum.CameraType.Custom
+
+aO=ap.CFrame
+aN=ap.Focus
+
+aL=am.MouseIconEnabled
+am.MouseIconEnabled=true
+
+aK=am.MouseBehavior
+am.MouseBehavior=Enum.MouseBehavior.Default
+end
+
+function aJ.Pop()
+for aT,aU in pairs(aR)do
+al:SetCoreGuiEnabled(Enum.CoreGuiType[aT],aU)
+end
+for aT,aU in pairs(aS)do
+al:SetCore(aT,aU)
+end
+for aT,aU in pairs(aQ)do
+if aU.Parent then
+aU.Enabled=true
+end
+end
+
+ap.FieldOfView=aP
+aP=nil
+
+ap.CameraType=aM
+aM=nil
+
+ap.CFrame=aO
+aO=nil
+
+ap.Focus=aN
+aN=nil
+
+am.MouseIconEnabled=true
+am.MouseBehavior=Enum.MouseBehavior.Default
+aK=nil
+aL=nil
+end
+end
+
+local function StartFreecam()
+local aK=ap.CFrame
+aC=Vector2.new(aK:toEulerAnglesYXZ())
+aB=aK.p
+aD=ap.FieldOfView
+
+aF:Reset(Vector3.new())
+aG:Reset(Vector2.new())
+aH:Reset(0)
+
+aJ.Push()
+ak:BindToRenderStep("Freecam",Enum.RenderPriority.Camera.Value,StepFreecam)
+aI.StartCapture()
+end
+
+local function StopFreecam()
+aI.StopCapture()
+ak:UnbindFromRenderStep"Freecam"
+aJ.Pop()
+
+task.spawn(function()
+for aK=1,45 do
+task.wait()
+am.MouseBehavior=Enum.MouseBehavior.Default
+am.MouseIconEnabled=true
+end
+end)
+end
+
+function _.EnableFreecam(aK)
+StartFreecam()
+end
+
+function _.StopFreecam(aK)
+StopFreecam()
+end
+
+local aK=false
+
+function _.IsActive(aL)
+return aK
+end
+
+function _.SetOverride(aL,aM)
+aE=aM
+end
+
+function _.ClearOverride(aL)
+aE=nil
+end
+
+function _.set_active(aL)
+aL=not not aL
+
+if aL==aK then
+return
+end
+
+aK=aL
+
+if aL then
+_:EnableFreecam()
+else
+_:StopFreecam()
+end
+
+if library.freecam_keybind then
+library.freecam_keybind.set(aL)
+end
+end
+
+am.InputBegan:Connect(function(aL,aM)
+if aM then return end
+if aL.KeyCode==Enum.KeyCode.P then
+local aN=am:IsKeyDown(Enum.KeyCode.LeftShift)or
+am:IsKeyDown(Enum.KeyCode.RightShift)
+if aN then
+_.set_active(not aK)
+end
+end
+end)
+end
+
+getgenv().library={
+directory="priv9",
+folders={
+"/fonts",
+"/configs",
+},
+flags={},
+config_flags={},
+
+connections={},
+notifications={},
+playerlist_data={
+players={},
+player={},
+},
+colorpicker_open=false;
+gui;
+}
+
+local aa={
+preset={
+outline=y(10,10,10),
+inline=y(35,35,35),
+text=y(180,180,180),
+text_outline=y(0,0,0),
+background=y(20,20,20),
+["1"]=z"#245771",
+["2"]=z"#215D63",
+["3"]=z"#1E6453",
+},
+
+utility={
+inline={
+BackgroundColor3={}
+},
+text={
+TextColor3={}
+},
+text_outline={
+Color={}
+},
+["1"]={
+BackgroundColor3={},
+TextColor3={},
+ImageColor3={},
+ScrollBarImageColor3={},
+BorderColor3={},
+},
+["2"]={
+BackgroundColor3={},
+TextColor3={},
+ImageColor3={},
+ScrollBarImageColor3={},
+BorderColor3={},
+},
+["3"]={
+BackgroundColor3={},
+TextColor3={},
+ImageColor3={},
+ScrollBarImageColor3={},
+BorderColor3={},
+},
+}
+}
+
+local ab={
+[Enum.KeyCode.LeftShift]="LShift",
+[Enum.KeyCode.RightShift]="RShift",
+[Enum.KeyCode.LeftControl]="LCtrl",
+[Enum.KeyCode.RightControl]="RCtrl",
+[Enum.KeyCode.Insert]="INSERT",
+[Enum.KeyCode.Backspace]="BACK",
+[Enum.KeyCode.Return]="Enter",
+[Enum.KeyCode.LeftAlt]="LAlt",
+[Enum.KeyCode.RightAlt]="RAlt",
+[Enum.KeyCode.CapsLock]="CAPS",
+[Enum.KeyCode.One]="1",
+[Enum.KeyCode.Two]="2",
+[Enum.KeyCode.Three]="3",
+[Enum.KeyCode.Four]="4",
+[Enum.KeyCode.Five]="5",
+[Enum.KeyCode.Six]="6",
+[Enum.KeyCode.Seven]="7",
+[Enum.KeyCode.Eight]="8",
+[Enum.KeyCode.Nine]="9",
+[Enum.KeyCode.Zero]="0",
+[Enum.KeyCode.KeypadOne]="Num1",
+[Enum.KeyCode.KeypadTwo]="Num2",
+[Enum.KeyCode.KeypadThree]="Num3",
+[Enum.KeyCode.KeypadFour]="Num4",
+[Enum.KeyCode.KeypadFive]="Num5",
+[Enum.KeyCode.KeypadSix]="Num6",
+[Enum.KeyCode.KeypadSeven]="Num7",
+[Enum.KeyCode.KeypadEight]="Num8",
+[Enum.KeyCode.KeypadNine]="Num9",
+[Enum.KeyCode.KeypadZero]="Num0",
+[Enum.KeyCode.Minus]="-",
+[Enum.KeyCode.Equals]="=",
+[Enum.KeyCode.Tilde]="~",
+[Enum.KeyCode.LeftBracket]="[",
+[Enum.KeyCode.RightBracket]="]",
+[Enum.KeyCode.RightParenthesis]=")",
+[Enum.KeyCode.LeftParenthesis]="(",
+[Enum.KeyCode.Semicolon]=",",
+[Enum.KeyCode.Quote]="'",
+[Enum.KeyCode.BackSlash]="\\",
+[Enum.KeyCode.Comma]=",",
+[Enum.KeyCode.Period]=".",
+[Enum.KeyCode.Slash]="/",
+[Enum.KeyCode.Asterisk]="*",
+[Enum.KeyCode.Plus]="+",
+[Enum.KeyCode.Period]=".",
+[Enum.KeyCode.Backquote]="`",
+[Enum.UserInputType.MouseButton1]="MB1",
+[Enum.UserInputType.MouseButton2]="MB2",
+[Enum.UserInputType.MouseButton3]="MB3",
+[Enum.KeyCode.Escape]="ESCAPE",
+[Enum.KeyCode.Space]="SPACE",
+}
+
+library.__index=library
+
+for ac,ad in next,library.folders do
+makefolder(library.directory..ad)
+end
+
+local ac=library.flags
+local ad=library.config_flags
+library.keybinds={}
+
+local ae={};do
+function Register_Font(af,ag,ah,ai)
+if not isfile(ai.Id)then
+writefile(ai.Id,ai.Font)
+end
+
+if isfile(af..".font")then
+delfile(af..".font")
+end
+
+local aj={
+name=af,
+faces={
+{
+name="Regular",
+weight=ag,
+style=ah,
+assetId=getcustomasset(ai.Id),
+},
+},
+}
+
+writefile(af..".font",game:GetService"HttpService":JSONEncode(aj))
+
+return getcustomasset(af..".font")
+end
+
+local af=Register_Font("Tahoma",200,"Normal",{
+Id="Tahoma.ttf",
+Font=game:HttpGet"https://github.com/i77lhm/storage/raw/refs/heads/main/fonts/tahoma_bold.ttf",
+})
+
+local ag=Register_Font("ProggyClean",200,"normal",{
+Id="ProggyClean.ttf",
+Font=game:HttpGet"https://github.com/i77lhm/storage/raw/refs/heads/main/fonts/ProggyClean.ttf"
+})
+
+local ah=Register_Font("SmallestPixel",400,"Normal",{
+Id="SmallestPixel.ttf",
+Font=game:HttpGet"https://github.com/i77lhm/storage/raw/refs/heads/main/fonts/smallest_pixel-7.ttf",
+})
+
+ae={TahomaBold=
+Font.new(af,Enum.FontWeight.Regular,Enum.FontStyle.Normal);ProggyClean=
+Font.new(ag,Enum.FontWeight.Regular,Enum.FontStyle.Normal);SmallestPixel=
+Font.new(ah,Enum.FontWeight.Regular,Enum.FontStyle.Normal);
+}
+end
+
+function library.tween(af,ag,ah)
+local ai=l:Create(ag,TweenInfo.new(0.25,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut,0,false,0),ah):Play()
+
+return ai
+end
+
+function library.close_current_element(af,ag)
+local ah=library.current_element_open
+
+if ah then
+ah.set_visible(false)
+ah.open=false
+end
+end
+
+function library.resizify(af,ag)
+local ah=Instance.new"TextButton"
+ah.Position=p(1,-10,1,-10)
+ah.BorderColor3=y(0,0,0)
+ah.Size=p(0,10,0,10)
+ah.BorderSizePixel=0
+ah.BackgroundColor3=y(255,255,255)
+ah.Parent=ag
+ah.BackgroundTransparency=1
+ah.Text=""
+
+local ai=false
+local aj
+local ak
+local al=ag.Size
+
+ah.InputBegan:Connect(function(am)
+if am.UserInputType==Enum.UserInputType.MouseButton1 then
+ai=true
+ak=am.Position
+aj=ag.Size
+end
+end)
+
+ah.InputEnded:Connect(function(am)
+if am.UserInputType==Enum.UserInputType.MouseButton1 then
+ai=false
+end
+end)
+
+library:connection(a.InputChanged,function(am,an)
+if ai and am.UserInputType==Enum.UserInputType.MouseMovement then
+local ao=F.ViewportSize.X
+local ap=F.ViewportSize.Y
+
+local ar=p(
+aj.X.Scale,
+math.clamp(
+aj.X.Offset+(am.Position.X-ak.X),
+al.X.Offset,
+ao
+),
+aj.Y.Scale,
+math.clamp(
+aj.Y.Offset+(am.Position.Y-ak.Y),
+al.Y.Offset,
+ap
+)
+)
+ag.Size=ar
+end
+end)
+end
+
+function library.mouse_in_frame(af,ag)
+local ah=ag.AbsolutePosition.Y<=H.Y and H.Y<=ag.AbsolutePosition.Y+ag.AbsoluteSize.Y
+local ai=ag.AbsolutePosition.X<=H.X and H.X<=ag.AbsolutePosition.X+ag.AbsoluteSize.X
+
+return(ah and ai)
+end
+
+library.lerp=function(af,ag,ah)
+ah=ah or 0.125
+
+return af*(1-ah)+ag*ah
+end
+
+function library.draggify(af,ag)
+local ah=false
+local ai=ag.Position
+local aj
+
+ag.InputBegan:Connect(function(ak)
+if ak.UserInputType==Enum.UserInputType.MouseButton1 then
+ah=true
+aj=ak.Position
+ai=ag.Position
+end
+end)
+
+ag.InputEnded:Connect(function(ak)
+if ak.UserInputType==Enum.UserInputType.MouseButton1 then
+ah=false
+end
+end)
+
+library:connection(a.InputChanged,function(ak,al)
+if ah and ak.UserInputType==Enum.UserInputType.MouseMovement then
+local am=F.ViewportSize.X
+local an=F.ViewportSize.Y
+
+local ao=p(
+0,
+V(
+ai.X.Offset+(ak.Position.X-aj.X),
+0,
+am-ag.Size.X.Offset
+),
+0,
+math.clamp(
+ai.Y.Offset+(ak.Position.Y-aj.Y),
+0,
+an-ag.Size.Y.Offset
+)
+)
+
+ag.Position=ao
+end
+end)
+end
+
+function library.convert(af,ag)
+local ah={}
+
+for ai in string.gmatch(ag,"[^,]+")do
+W(ah,tonumber(ai))
+end
+
+if#ah==4 then
+return unpack(ah)
+else
+return
+end
+end
+
+function library.convert_enum(af,ag)
+local ah={}
+
+for ai in string.gmatch(ag,"[%w_]+")do
+W(ah,ai)
+end
+
+local ai=Enum
+for aj=2,#ah do
+local ak=ai[ah[aj] ]
+
+ai=ak
+end
+
+return ai
+end
+
+local af;
+function library.update_config_list(ag)
+if not af then
+return
+end
+
+local ah={}
+
+for ai,aj in listfiles(library.directory.."/configs")do
+local ak=aj:gsub(library.directory.."/configs\\",""):gsub(".cfg",""):gsub(library.directory.."\\configs\\","")
+ah[#ah+1]=ak
+end
+
+af.refresh_options(ah)
+end
+
+function library.get_config(ag)
+local ah={}
+
+for ai,aj in ac do
+if type(aj)=="table"and aj.key then
+ah[ai]={active=aj.active,mode=aj.mode,key=tostring(aj.key)}
+elseif type(aj)=="table"and aj.Transparency and aj.Color then
+ah[ai]={Transparency=aj.Transparency,Color=aj.Color:ToHex()}
+else
+ah[ai]=aj
+end
+end
+
+return e:JSONEncode(ah)
+end
+
+function library.load_config(ag,ah)
+local ai=e:JSONDecode(ah)
+
+for aj,ak in next,ai do
+local al=library.config_flags[aj]
+
+if aj=="config_name_list"then
+continue
+end
+
+if al then
+if type(ak)=="table"and ak.Transparency and ak.Color then
+al(z(ak.Color),ak.Transparency)
+print"set cp!"
+elseif type(ak)=="table"and ak.active then
+al(ak)
+else
+al(ak)
+end
+end
+end
+end
+
+function library.round(ag,ah,ai)
+local aj=1/(ai or 1)
+
+return K(ah*aj+0.5)/aj
+end
+
+function library.apply_theme(ag,ah,ai,aj)
+W(aa.utility[ai][aj],ah)
+end
+
+function library.update_theme(ag,ah,ai)
+for aj,ak in next,aa.utility[ah]do
+for al,am in next,ak do
+if am:GetAttribute"PrivToggleState"==false and aj=="BackgroundColor3"then
+
+am[aj]=aa.preset.inline
+else
+am[aj]=ai
+end
+end
+end
+
+aa.preset[ah]=ai
+end
+
+function library.create_visuals_selection_box(ag,ah)
+local ai=library:create("Frame",{
+Parent=ah.elements;
+BorderColor3=aa.preset[tostring(ah.count)];
+BorderSizePixel=1;
+BackgroundColor3=y(35,35,35);
+Size=p(1,0,0,0);
+AutomaticSize=Enum.AutomaticSize.Y;
+})
+library:apply_theme(ai,tostring(ah.count),"BorderColor3")
+
+library:create("UIPadding",{
+Parent=ai;
+PaddingTop=q(0,4);
+PaddingBottom=q(0,4);
+PaddingLeft=q(0,6);
+PaddingRight=q(0,6);
+})
+
+library:create("UIListLayout",{
+Parent=ai;
+Padding=q(0,4);
+SortOrder=Enum.SortOrder.LayoutOrder;
+})
+
+return ai
+end
+
+function library.create_visuals_page(ag,ah,ai,aj)
+local ak=aj.center_label or aj.label
+local al=aj.right_label or(aj.label.." options")
+
+local am=aj.auto_fill~=false
+
+local an=ah:section{name=ak,auto_fill=am,size=1}
+local ao=ai:section{name=al,auto_fill=am,size=1}
+
+an.frame.Visible=false
+ao.frame.Visible=false
+
+return{
+center=an,
+right=ao,
+}
+end
+
+library.visuals_registry=library.visuals_registry or{pages={},selection_box=nil}
+
+function library.create_visuals_selection(ag,ah)
+local ai=library:create_visuals_selection_box(ah)
+library.visuals_registry.selection_box=ai
+return ai
+end
+
+function library.create_visuals_placeholder(ag,ah,ai)
+local aj=ah:section{name=ai or"placeholder",auto_fill=false,size=1}
+aj.frame.Visible=false
+return aj
+end
+
+function library.register_visuals_page(ag,ah,ai,aj,ak)
+library.visuals_registry.pages[ah]=library.visuals_registry.pages[ah]or{}
+local al=library.visuals_registry.pages[ah]
+al.label=ai
+al.center=aj
+al.right=ak
+
+local am=library.visuals_registry.selection_box
+if am and not al.button then
+local an=library:create("TextButton",{
+FontFace=ae.ProggyClean;
+TextColor3=y(170,170,170);
+BorderColor3=y(0,0,0);
+Text=ai;
+Parent=am;
+BackgroundTransparency=1;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.XY;
+TextSize=12;
+TextXAlignment=Enum.TextXAlignment.Left;
+BackgroundColor3=y(255,255,255)
+})
+
+al.button=an
+
+an.MouseButton1Click:Connect(function()
+library:set_visuals_page(ah)
+end)
+end
+
+return al
+end
+
+function library.get_visuals_page(ag,ah)
+library.visuals_registry=library.visuals_registry or{pages={},selection_box=nil}
+return library.visuals_registry.pages[ah]
+end
+
+function library.set_visuals_page(ag,ah)
+library.visuals_registry=library.visuals_registry or{pages={},selection_box=nil}
+local function set_visible(ai,aj)
+if not ai then return end
+
+if type(ai)=="table"and ai.frame then
+ai.frame.Visible=aj
+return
+end
+
+if type(ai)=="table"then
+for ak,al in next,ai do
+if al and al.frame then
+al.frame.Visible=aj
+end
+end
+end
+end
+
+for ai,aj in next,library.visuals_registry.pages do
+local ak=ai==ah
+
+set_visible(aj.center,ak)
+set_visible(aj.right,ak)
+
+if aj.extra then
+for al,am in next,aj.extra do
+set_visible(am,ak)
+end
+end
+
+if aj.button then
+aj.button.TextColor3=ak and y(255,255,255)or y(170,170,170)
+end
+end
+end
+
+function library.connection(ag,ah,ai)
+local aj=ah:Connect(ai)
+
+W(library.connections,aj)
+
+return aj
+end
+
+function library.apply_stroke(ag,ah)
+local ai=library:create("UIStroke",{
+Parent=ah,
+Color=aa.preset.text_outline,
+LineJoinMode=Enum.LineJoinMode.Miter
+})
+
+library:apply_theme(ai,"text_outline","Color")
+end
+
+function library.create(ag,ah,ai)
+local aj=Instance.new(ah)
+
+for ak,al in next,ai do
+aj[ak]=al
+end
+
+if ah=="TextLabel"or ah=="TextButton"or ah=="TextBox"then
+library:apply_theme(aj,"text","TextColor3")
+library:apply_stroke(aj)
+end
+
+return aj
+end
+
+function library.update_keybind_visualizer(ag)
+local ah=ag.active_keybind_container
+if not ah then
+return
+end
+
+local ai={}
+for aj,ak in ipairs(ag.keybinds or{})do
+if ak.active and not ak.ignore_key and ak.flag~="menu_key"then
+W(ai,ak)
+end
+end
+
+for aj,ak in ipairs(ag.active_keybind_labels or{})do
+ak:Destroy()
+end
+ag.active_keybind_labels={}
+
+if#ai==0 then
+ah.Visible=false
+return
+end
+
+ah.Visible=true
+for aj,ak in ipairs(ai)do
+local al=library:create("TextLabel",{
+Parent=ah;
+Text="";
+FontFace=ae.SmallestPixel;
+TextColor3=z"#8AD4BF";
+BackgroundTransparency=1;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.XY;
+TextSize=9;
+TextStrokeTransparency=0;
+TextXAlignment=Enum.TextXAlignment.Center;
+})
+
+local am=ak.mode or""
+al.Text=string.format("%s [%s]",ak.name or ak.flag or"keybind",string.lower(am))
+W(ag.active_keybind_labels,al)
+end
+end
+
+function library.unload_menu(ag)
+if library.gui then
+library.gui:Destroy()
+end
+
+for ah,ai in next,library.connections do
+ai:Disconnect()
+ai=nil
+end
+
+if library.sgui then
+library.sgui:Destroy()
+end
+
+library=nil
+end
+
+function library.window(ag,ah)
+local ai={
+name=ah.name or ah.Name or"priv9",
+size=ah.size or ah.Size or p(0,450,0,350),
+selected_tab=nil,
+tabs={}
+}
+
+library.gui=library:create("ScreenGui",{
+Parent=j,
+Name="\0",
+Enabled=true,
+ZIndexBehavior=Enum.ZIndexBehavior.Sibling,
+IgnoreGuiInset=true,
+DisplayOrder=2147483647,
+})
+
+local aj=library:create("Frame",{
+Parent=library.gui;
+Position=p(0.5,-ai.size.X.Offset/2,0.5,-ai.size.Y.Offset/2);
+BorderColor3=y(0,0,0);
+Size=ai.size;
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+aj.Position=p(0,aj.AbsolutePosition.Y,0,aj.AbsolutePosition.Y)
+ai.main_outline=aj
+
+library:resizify(aj)
+library:draggify(aj)
+
+local ak=library:create("Frame",{
+Parent=aj;
+BackgroundTransparency=0.800000011920929;
+Position=p(0,2,0,2);
+BorderColor3=y(0,0,0);
+Size=p(1,-4,0,20);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});
+
+library:create("TextLabel",{
+FontFace=ae.TahomaBold;
+TextColor3=y(255,255,255);
+BorderColor3=y(0,0,0);
+Text=ai.name;
+Parent=ak;
+BackgroundTransparency=1;
+Size=p(1,0,1,0);
+BorderSizePixel=0;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+library.gradient=library:create("UIGradient",{
+Color=B{
+C(0,aa.preset["1"]),
+C(0.5,aa.preset["2"]),
+C(1,aa.preset["3"]),
+};
+Parent=aj
+});
+
+local al=library:create("Frame",{
+AnchorPoint=n(0,1);
+Parent=aj;
+BackgroundTransparency=0.800000011920929;
+Position=p(0,2,1,-2);
+BorderColor3=y(0,0,0);
+Size=p(1,-4,0,20);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});ai.tab_button_holder=al
+
+library:create("UIListLayout",{
+VerticalAlignment=Enum.VerticalAlignment.Center;
+FillDirection=Enum.FillDirection.Horizontal;
+HorizontalAlignment=Enum.HorizontalAlignment.Center;
+HorizontalFlex=Enum.UIFlexAlignment.Fill;
+Parent=al;
+SortOrder=Enum.SortOrder.LayoutOrder;
+VerticalFlex=Enum.UIFlexAlignment.Fill
+});
+
+function ai.toggle_menu(am)
+aj.Visible=am
+end
+
+return setmetatable(ai,library)
+end
+
+function library.tab(ag,ah)
+local ai={
+name=ah.name or"visuals",
+count=0
+}
+
+ag.tabs=ag.tabs or{}
+W(ag.tabs,ai)
+
+local aj=library:create("TextButton",{
+FontFace=ae.ProggyClean;
+TextColor3=y(170,170,170);
+BorderColor3=y(0,0,0);
+Text=ai.name;
+Parent=ag.tab_button_holder;
+BackgroundTransparency=1;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.XY;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+local ak=library:create("Frame",{
+Parent=ag.main_outline;
+BackgroundTransparency=0.6;
+Position=p(0,2,0,24);
+BorderColor3=y(0,0,0);
+Size=p(1,-4,1,-48);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0),
+Visible=false,
+});ai.page=ak
+
+library:create("UIListLayout",{
+FillDirection=Enum.FillDirection.Horizontal;
+HorizontalFlex=Enum.UIFlexAlignment.Fill;
+Parent=ak;
+Padding=q(0,2);
+SortOrder=Enum.SortOrder.LayoutOrder;
+VerticalFlex=Enum.UIFlexAlignment.Fill
+});
+
+library:create("UIPadding",{
+PaddingTop=q(0,2);
+PaddingBottom=q(0,2);
+Parent=ak;
+PaddingRight=q(0,2);
+PaddingLeft=q(0,2)
+});
+
+function ai.open_tab()
+local al=ag.selected_tab
+
+if al then
+al[1].Visible=false
+al[2].TextColor3=y(170,170,170)
+
+al=nil
+end
+
+ak.Visible=true
+aj.TextColor3=y(255,255,255)
+
+ag.selected_tab={ak,aj}
+end
+
+aj.MouseButton1Down:Connect(function()
+ai.open_tab()
+end)
+
+if not ag.selected_tab then
+ai.open_tab(true)
+end
+
+return setmetatable(ai,library)
+end
+
+local ag={notifs={}}
+
+library.sgui=library:create("ScreenGui",{
+Name="Hi",
+Parent=gethui();
+IgnoreGuiInset=false;
+DisplayOrder=2147483646;
+})
+
+library.active_keybind_container=library:create("Frame",{
+Parent=library.sgui;
+AnchorPoint=n(0.5,0);
+Position=p(0.5,0,0.5,30);
+BackgroundTransparency=1;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.XY;
+Visible=false;
+})
+library.active_keybind_labels={}
+
+library:create("UIListLayout",{
+Parent=library.active_keybind_container;
+Padding=q(0,4);
+SortOrder=Enum.SortOrder.LayoutOrder;
+HorizontalAlignment=Enum.HorizontalAlignment.Center;
+})
+
+function ag.refresh_notifs(ah)
+local ai=library.watermark_outline
+local aj=(ai and ai.AbsolutePosition and ai.AbsolutePosition.X)and ai.AbsolutePosition.X or 18
+local ak=(ai and ai.AbsolutePosition and ai.AbsolutePosition.Y)and ai.AbsolutePosition.Y or 0
+
+local al={}
+for am in pairs(ag.notifs)do
+if type(am)=="number"then
+W(al,am)
+end
+end
+
+table.sort(al)
+
+local am=30
+local an=(ai and ai.AbsoluteSize and ai.AbsoluteSize.Y)and ai.AbsoluteSize.Y or 24
+for ao,ap in ipairs(al)do
+local ar=ag.notifs[ap]
+if ar then
+local as=ak+an+(ao*am)
+l:Create(ar,TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out),{Position=w(aj,as)}):Play()
+end
+end
+end
+
+function ag.fade(ah,ai,aj)
+local ak=aj and 1 or 0
+
+l:Create(ai,TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out),{BackgroundTransparency=ak}):Play()
+
+for al,am in ai:GetDescendants()do
+if not am:IsA"GuiObject"then
+if am:IsA"UIStroke"then
+l:Create(am,TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out),{Transparency=ak}):Play()
+end
+
+continue
+end
+
+if am:IsA"TextLabel"then
+l:Create(am,TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out),{TextTransparency=ak}):Play()
+elseif am:IsA"Frame"then
+l:Create(am,TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out),{BackgroundTransparency=am.Transparency and 0.6 and aj and 1 or 0.6}):Play()
+end
+end
+end
+
+function ag.create_notification(ah,ai)
+local aj={
+name=ai.name or"Hit: retard (retard) in the Head for 100 Damage!",
+outline;
+}
+
+local ak=library.watermark_outline
+local al=(ak and ak.AbsolutePosition and ak.AbsolutePosition.X)and ak.AbsolutePosition.X or 18
+local am=(ak and ak.AbsolutePosition and ak.AbsolutePosition.Y)and ak.AbsolutePosition.Y or 0
+
+local an=8
+local ao=(ak and ak.AbsoluteSize and ak.AbsoluteSize.Y)and ak.AbsoluteSize.Y or 24
+
+local ap=library:create("Frame",{
+Parent=library.sgui;
+Position=w(al,am+ao+((#ag.notifs+1)*an));
+BorderColor3=y(0,0,0);
+Size=p(0,0,0,24);
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.X;
+BackgroundColor3=y(255,255,255)
+});
+
+local ar=library:create("Frame",{
+Parent=ap;
+BackgroundTransparency=1;
+Position=p(0,2,0,2);
+BorderColor3=y(0,0,0);
+Size=p(1,-4,1,-4);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});
+
+library:create("UIPadding",{
+PaddingTop=q(0,7);
+PaddingBottom=q(0,6);
+Parent=ar;
+PaddingRight=q(0,7);
+PaddingLeft=q(0,4)
+});
+
+library:create("TextLabel",{
+FontFace=ae.ProggyClean;
+TextColor3=y(255,255,255);
+BorderColor3=y(0,0,0);
+Text=aj.name;
+Parent=ar;
+Size=p(0,0,1,0);
+Position=p(0,1,0,-1);
+BackgroundTransparency=1;
+TextXAlignment=Enum.TextXAlignment.Left;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.X;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+library:create("UIGradient",{
+Color=B{
+C(0,aa.preset["1"]),
+C(0.5,aa.preset["2"]),
+C(1,aa.preset["3"]),
+};
+Parent=ap
+});
+
+local as=#ag.notifs+1
+ag.notifs[as]=ap
+
+ag:refresh_notifs()
+l:Create(ap,TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out),{AnchorPoint=n(0,0)}):Play()
+
+ag:fade(ap,false)
+
+task.spawn(function()
+task.wait(3)
+
+ag.notifs[as]=nil
+
+ag:fade(ap,true)
+
+task.wait(3)
+
+ap:Destroy()
+end)
+end
+
+function library.watermark(ah,ai)
+local aj={
+name=ai.name or"nebulahax";
+}
+
+local ak=library:create("Frame",{
+Parent=library.sgui;
+Position=p(0,18,0,0);
+BorderColor3=y(0,0,0);
+Size=p(0,0,0,24);
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.X;
+BackgroundColor3=y(255,255,255)
+});library.watermark_outline=ak;library:draggify(ak);
+
+local al=library:create("Frame",{
+Parent=ak;
+BackgroundTransparency=0.6;
+Position=p(0,2,0,2);
+BorderColor3=y(0,0,0);
+Size=p(1,-4,1,-4);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});
+
+library:create("UIPadding",{
+PaddingTop=q(0,7);
+PaddingBottom=q(0,6);
+Parent=al;
+PaddingRight=q(0,7);
+PaddingLeft=q(0,4)
+});
+
+local am=library:create("TextLabel",{
+FontFace=ae.ProggyClean;
+TextColor3=y(255,255,255);
+BorderColor3=y(0,0,0);
+Text=aj.name;
+Parent=al;
+Size=p(0,0,1,0);
+Position=p(0,1,0,-1);
+BackgroundTransparency=1;
+TextXAlignment=Enum.TextXAlignment.Left;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.X;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+library.watermark_gradient=library:create("UIGradient",{
+Color=B{
+C(0,aa.preset["1"]),
+C(0.5,aa.preset["2"]),
+C(1,aa.preset["3"]),
+};
+Parent=ak
+});
+
+function aj.update_text(an)
+am.Text=an
+end
+
+aj.update_text(aj.name)
+
+return setmetatable(aj,library)
+end
+
+local ah=library:watermark{name="priv9.net alpha"}
+local ai=0
+local aj=tick()
+
+h.RenderStepped:Connect(function()
+ai+=1
+
+if tick()-aj>1 then
+aj=tick()
+local ak=math.floor(i.PerformanceStats.Ping:GetValue()).."ms"
+ah.update_text(string.format("priv9.net alpha | fps: %s",ai,ak))
+ai=0
+end
+end)
+
+function library.column(ak,al)
+ak.count+=1
+
+local am={color=library.gradient.Color.Keypoints[ak.count].Value,count=ak.count}
+
+local an=library:create("ScrollingFrame",{
+ScrollBarImageColor3=y(0,0,0);
+Active=true;
+AutomaticCanvasSize=Enum.AutomaticSize.Y;
+ScrollBarThickness=0;
+Parent=ak.page;
+LayoutOrder=-1;
+BackgroundTransparency=1;
+ScrollBarImageTransparency=1;
+BorderColor3=y(0,0,0);
+BackgroundColor3=y(0,0,0);
+BorderSizePixel=0;
+CanvasSize=p(0,0,0,0)
+});am.column=an
+
+library:create("UIListLayout",{
+Parent=an;
+Padding=q(0,2);
+SortOrder=Enum.SortOrder.LayoutOrder
+});
+
+return setmetatable(am,library)
+end
+
+function library.section(ak,al)
+local am={
+name=al.name or al.Name or"section",
+size=al.size or 1,
+autofill=al.auto_fill or false,
+count=ak.count;
+color=ak.color;
+}
+
+local an=library:create("Frame",{
+Parent=ak.column;
+ClipsDescendants=true;
+BorderColor3=y(0,0,0);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(an,tostring(ak.count),"BackgroundColor3");
+
+local ao=library:create("Frame",{
+Parent=an;
+BackgroundTransparency=0.6;
+Position=p(0,1,0,16);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-17);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});
+
+local ap=library:create("Frame",{
+Parent=ao;
+Position=p(0,4,0,5);
+BorderColor3=y(0,0,0);
+Size=p(1,-8,0,0);
+BackgroundTransparency=1;
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});am.elements=ap
+am.frame=an
+
+if am.autofill==false then
+ap.AutomaticSize=Enum.AutomaticSize.Y;
+an.AutomaticSize=Enum.AutomaticSize.Y;
+an.Size=p(1,0,0,0);
+
+library:create("UIPadding",{
+Parent=ap,
+Name="",
+PaddingBottom=q(0,7)
+})
+else
+
+local ar=Instance.new"BoolValue"
+ar.Name="__autofill"
+ar.Value=true
+ar.Parent=an
+
+an.Size=p(1,0,0,24)
+
+local function find_listlayout(as)
+for at,au in pairs(as:GetChildren())do
+if au:IsA"UIListLayout"then
+return au
+end
+end
+end
+
+local function apply_autofill()
+local as=an.Parent
+if not as then return end
+
+local at=find_listlayout(as)
+if not at then return end
+
+local au=at.AbsoluteContentSize.Y
+local av=an.AbsoluteSize.Y
+
+local aw
+local ax=-math.huge
+for ay,az in pairs(as:GetChildren())do
+local aA=az:FindFirstChild"__autofill"
+if aA and aA.Value then
+if az.AbsolutePosition.Y>ax then
+ax=az.AbsolutePosition.Y
+aw=az
+end
+end
+end
+
+if aw~=an then
+return
+end
+
+local ay=as.AbsoluteSize.Y-(au-av)
+ay=math.floor(ay)
+if ay<24 then
+ay=24
+end
+
+if ay and ay>0 then
+an.Size=UDim2.new(1,0,0,ay)
+end
+end
+
+local as=false
+local function schedule()
+if as then return end
+as=true
+task.delay(0.04,function()
+as=false
+pcall(apply_autofill)
+end)
+end
+
+local at=an.Parent
+local au=find_listlayout(at)
+if au then
+library:connection(au:GetPropertyChangedSignal"AbsoluteContentSize",schedule)
+end
+library:connection(at:GetPropertyChangedSignal"AbsoluteSize",schedule)
+
+library:connection(an:GetPropertyChangedSignal"AbsoluteSize",schedule)
+
+schedule()
+end
+
+library:create("UIListLayout",{
+Parent=ap;
+Padding=q(0,6);
+SortOrder=Enum.SortOrder.LayoutOrder
+});
+
+library:create("TextLabel",{
+FontFace=ae.TahomaBold;
+TextColor3=y(255,255,255);
+BorderColor3=y(0,0,0);
+Text=am.name;
+Parent=an;
+Size=p(1,0,0,0);
+Position=p(0,4,0,2);
+BackgroundTransparency=1;
+TextXAlignment=Enum.TextXAlignment.Left;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.Y;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+library:create("UIListLayout",{
+Parent=ScrollingFrame;
+Padding=q(0,5);
+SortOrder=Enum.SortOrder.LayoutOrder
+});
+
+return setmetatable(am,library)
+end
+
+function library.toggle(ak,al)
+local am={
+name=al.name or"Toggle",
+flag=al.flag or al.name or"Flag",
+
+default=al.default or false,
+folding=al.folding or false,
+callback=al.callback or function()end,
+
+color=ak.color;
+count=ak.count;
+}
+
+if al.enabled~=nil then
+am.enabled=al.enabled
+else
+am.enabled=am.default
+end
+
+local an=library:create("TextButton",{
+Parent=ak.elements;
+BackgroundTransparency=1;
+Text="";
+BorderColor3=y(0,0,0);
+Size=p(1,0,0,12);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+library:create("TextLabel",{
+FontFace=ae.ProggyClean;
+TextColor3=y(255,255,255);
+BorderColor3=y(0,0,0);
+Text=am.name;
+Parent=an;
+Size=p(1,0,1,0);
+Position=p(0,1,0,-1);
+BackgroundTransparency=1;
+TextXAlignment=Enum.TextXAlignment.Left;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.X;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+local ao=library:create("Frame",{
+AnchorPoint=n(1,0);
+Parent=an;
+Position=p(1,0,0,0);
+BorderColor3=y(0,0,0);
+Size=p(0,12,0,12);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(ao,tostring(ak.count),"BackgroundColor3");
+
+local ap=library:create("Frame",{
+Parent=ao;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(ap,tostring(ak.count),"BackgroundColor3");
+
+library:create("UIListLayout",{
+FillDirection=Enum.FillDirection.Horizontal;
+HorizontalAlignment=Enum.HorizontalAlignment.Right;
+Parent=right_components;
+Padding=q(0,4);
+SortOrder=Enum.SortOrder.LayoutOrder
+});
+
+local ar;
+
+if am.folding then
+ar=library:create("Frame",{
+Parent=ak.elements;
+BackgroundTransparency=1;
+Position=p(0,4,0,21);
+Size=p(1,0,0,0);
+BorderSizePixel=0;
+Visible=false;
+AutomaticSize=Enum.AutomaticSize.Y;
+BackgroundColor3=y(255,255,255)
+});am.elements=ar
+
+library:create("UIListLayout",{
+Parent=ar;
+Padding=q(0,6);
+HorizontalAlignment=Enum.HorizontalAlignment.Right;
+SortOrder=Enum.SortOrder.LayoutOrder
+});
+end
+
+function am.set(as)
+ap.BackgroundColor3=as and aa.preset[tostring(ak.count)]or aa.preset.inline
+ap:SetAttribute("PrivToggleState",as)
+
+ac[am.flag]=as
+
+am.callback(as)
+
+if am.folding then
+ar.Visible=as
+end
+end
+
+am.set(am.enabled)
+
+ad[am.flag]=am.set
+
+an.MouseButton1Click:Connect(function()
+am.enabled=not am.enabled
+am.set(am.enabled)
+end)
+
+return setmetatable(am,library)
+end
+
+function library.list(ak,al)
+local am={
+callback=al and al.callback or function()end,
+name=al.name or nil,
+
+scale=al.size or 90,
+items=al.items or{"1","2","3"},
+
+visible=al.visible or true,
+
+option_instances={},
+current_instance=nil,
+flag=al.flag or"flag",
+}
+
+local an=library:create("Frame",{
+BorderColor3=y(0,0,0);
+AnchorPoint=n(1,0);
+Parent=ak.elements;
+Position=p(1,0,0,0);
+Size=p(1,0,0,am.scale);
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.Y;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(an,tostring(ak.count),"BackgroundColor3")
+
+local ao=library:create("Frame",{
+Parent=an;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=y(35,35,35)
+});library:apply_theme(ao,"inline","BackgroundColor3")
+
+local ap=library:create("ScrollingFrame",{
+ScrollBarImageColor3=y(0,0,0);
+Active=true;
+AutomaticCanvasSize=Enum.AutomaticSize.Y;
+ScrollBarThickness=0;
+Parent=ao;
+Size=p(1,0,1,0);
+LayoutOrder=-1;
+BackgroundTransparency=1;
+ScrollBarImageTransparency=1;
+BorderColor3=y(0,0,0);
+BackgroundColor3=y(0,0,0);
+BorderSizePixel=0;
+CanvasSize=p(0,0,0,0)
+});
+
+library:create("UIListLayout",{
+Parent=ap;
+Padding=q(0,6);
+SortOrder=Enum.SortOrder.LayoutOrder
+});
+
+library:create("UIPadding",{
+PaddingTop=q(0,2);
+PaddingBottom=q(0,4);
+Parent=ap;
+PaddingRight=q(0,5);
+PaddingLeft=q(0,5)
+});
+
+function am.render_option(ar)
+local as=library:create("TextButton",{
+FontFace=ae.ProggyClean;
+TextColor3=y(170,170,170);
+BorderColor3=y(0,0,0);
+Text=ar;
+AutoButtonColor=false;
+BackgroundTransparency=1;
+Parent=ap;
+BorderSizePixel=0;
+Size=p(1,0,0,0);
+AutomaticSize=Enum.AutomaticSize.Y;
+TextSize=12;
+TextXAlignment=Enum.TextXAlignment.Center;
+TextYAlignment=Enum.TextYAlignment.Center;
+BackgroundColor3=y(255,255,255)
+});
+
+return as
+end
+
+function am.refresh_options(ar)
+for as,at in am.option_instances do
+at:Destroy()
+end
+
+for as,at in next,ar do
+local au=am.render_option(at)
+
+W(am.option_instances,au)
+
+au.MouseButton1Click:Connect(function()
+if am.current_instance and am.current_instance~=au then
+am.current_instance.TextColor3=y(170,170,170)
+end
+
+am.current_instance=au
+au.TextColor3=y(255,255,255)
+
+ac[am.flag]=au.text
+
+am.callback(au.text)
+end)
+end
+end
+
+function am.filter_options(ar)
+for as,at in next,am.option_instances do
+if string.find(at.Text,ar)then
+at.Visible=true
+else
+at.Visible=false
+end
+end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function am.set(ar)
+for as,at in next,am.option_instances do
+if at.Text==ar then
+at.TextColor3=y(255,255,255)
+else
+at.TextColor3=y(170,170,170)
+end
+end
+
+ac[am.flag]=ar
+am.callback(ar)
+end
+
+am.refresh_options(am.items)
+
+return setmetatable(am,library)
+end
+
+function library.slider(ak,al)
+local am={
+name=al.name or nil,
+suffix=al.suffix or"",
+flag=al.flag or al.name or"Flag",
+callback=al.callback or function()end,
+
+min=al.min or al.minimum or 0,
+max=al.max or al.maximum or 100,
+intervals=al.interval or al.decimal or 1,
+default=al.default or 10,
+value=al.default or 10,
+
+ignore=al.ignore or false,
+dragging=false,
+}
+
+local an=library:create("Frame",{
+Parent=ak.elements;
+BackgroundTransparency=1;
+BorderColor3=y(0,0,0);
+Size=p(1,0,0,25);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+local ao=library:create("TextLabel",{
+FontFace=ae.ProggyClean;
+TextColor3=y(255,255,255);
+RichText=true;
+BorderColor3=y(0,0,0);
+Text="max distance : 5000";
+Parent=an;
+Size=p(1,0,0,0);
+Position=p(0,1,0,-2);
+BackgroundTransparency=1;
+TextXAlignment=Enum.TextXAlignment.Left;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.XY;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+local ap=library:create("TextButton",{
+Parent=an;
+Text="";
+AutoButtonColor=false;
+Position=p(0,0,0,13);
+BorderColor3=y(0,0,0);
+Size=p(1,0,0,12);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(ap,tostring(ak.count),"BackgroundColor3")
+
+local ar=library:create("Frame",{
+Parent=ap;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset.inline
+});library:apply_theme(ap,"inline","BackgroundColor3")
+
+local as=library:create("Frame",{
+Parent=ar;
+BorderColor3=y(0,0,0);
+Size=p(0.5,0,1,0);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(as,tostring(ak.count),"BackgroundColor3")
+
+function am.set(at)
+local au=tonumber(at)
+
+if au==nil then
+return
+end
+
+am.value=V(library:round(au,am.intervals),am.min,am.max)
+
+as.Size=p((am.value-am.min)/(am.max-am.min),0,1,0)
+ao.Text=am.name.."<font color='#AAAAAA'>"..' - '..tostring(am.value)..am.suffix.."</font>"
+
+ac[am.flag]=am.value
+
+am.callback(ac[am.flag])
+end
+
+am.set(am.default)
+
+ap.MouseButton1Down:Connect(function()
+am.dragging=true
+end)
+
+library:connection(a.InputChanged,function(at)
+if am.dragging and at.UserInputType==Enum.UserInputType.MouseMovement then
+local au=(at.Position.X-ar.AbsolutePosition.X)/ar.AbsoluteSize.X
+local av=((am.max-am.min)*au)+am.min
+
+am.set(av)
+end
+end)
+
+library:connection(a.InputEnded,function(at)
+if at.UserInputType==Enum.UserInputType.MouseButton1 then
+am.dragging=false
+end
+end)
+
+am.set(am.default)
+
+ad[am.flag]=am.set
+
+return setmetatable(am,library)
+end
+
+function library.dropdown(ak,al)
+local am={
+name=al.name or nil,
+flag=al.flag or al.name or"Flag",
+items=al.items or{""},
+callback=al.callback or function()end,
+multi=al.multi or false,
+scrolling=al.scrolling or false,
+
+open=false,
+option_instances={},
+multi_items={},
+ignore=al.ignore or false,
+}
+
+am.default=al.default or(am.multi and{am.items[1]})or am.items[1]or"None"
+
+ac[am.flag]={}
+
+local an=library:create("Frame",{
+Parent=ak.elements;
+BackgroundTransparency=1;
+BorderColor3=y(0,0,0);
+Size=p(1,0,0,16);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});am.frame=an
+
+local ao=library:create("TextButton",{
+AnchorPoint=n(1,0);
+AutoButtonColor=false;
+Text="";
+Parent=an;
+Position=p(1,0,0,0);
+BorderColor3=y(0,0,0);
+Size=p(0,68,0,16);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(ao,tostring(ak.count),"BackgroundColor3")
+
+local ap=library:create("Frame",{
+Parent=ao;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=y(35,35,35)
+});
+
+local ar=library:create("TextLabel",{
+FontFace=ae.ProggyClean;
+TextColor3=y(255,255,255);
+BorderColor3=y(0,0,0);
+Text=am.name;
+Parent=ap;
+Size=p(1,0,1,0);
+BackgroundTransparency=1;
+Position=p(0,0,0,0);
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.X;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+library:create("TextLabel",{
+FontFace=ae.ProggyClean;
+TextColor3=y(255,255,255);
+BorderColor3=y(0,0,0);
+Text=am.name;
+Parent=an;
+Size=p(1,0,1,0);
+Position=p(0,1,0,0);
+BackgroundTransparency=1;
+TextXAlignment=Enum.TextXAlignment.Left;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.X;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+local as=library:create("Frame",{
+Parent=library.gui;
+Size=p(0.0907348021864891,0,0.006218905560672283,20);
+Position=p(0,500,0,100);
+BorderColor3=y(0,0,0);
+BorderSizePixel=0;
+Visible=false;
+AutomaticSize=Enum.AutomaticSize.Y;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(as,tostring(ak.count),"BackgroundColor3")
+
+local at=library:create("Frame",{
+Parent=as;
+Size=p(1,-2,1,-2);
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.Y;
+BackgroundColor3=aa.preset.inline
+});library:apply_theme(at,"inline","BackgroundColor3")
+
+library:create("UIListLayout",{
+Parent=at;
+Padding=q(0,6);
+SortOrder=Enum.SortOrder.LayoutOrder
+});
+
+library:create("UIPadding",{
+PaddingTop=q(0,5);
+PaddingBottom=q(0,2);
+Parent=at;
+PaddingRight=q(0,1);
+PaddingLeft=q(0,1)
+});
+
+library:create("UIPadding",{
+PaddingBottom=q(0,2);
+Parent=as
+});
+
+function am.render_option(au)
+local av=library:create("TextButton",{
+FontFace=ae.ProggyClean;
+AutoButtonColor=false;
+TextColor3=y(170,170,170);
+BorderColor3=y(0,0,0);
+Text=au;
+Parent=at;
+Size=p(1,0,0,0);
+Position=p(0,0,0,1);
+BackgroundTransparency=1;
+TextXAlignment=Enum.TextXAlignment.Left;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.Y;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+return av
+end
+
+function am.set_visible(au)
+as.Visible=au
+end
+
+local function update_label()
+if am.open then
+ar.Text="..."
+return
+end
+
+local au=""
+if am.multi then
+au=Z(am.multi_items,", ")
+else
+au=ac[am.flag]or am.default or""
+end
+
+ar.Text=au
+end
+
+function am.set(au)
+local av={}
+local aw=type(au)=="table"
+
+if au==nil then
+return
+end
+
+for ax,ay in next,am.option_instances do
+if ay.Text==au or(aw and X(au,ay.Text))then
+W(av,ay.Text)
+am.multi_items=av
+ay.TextColor3=y(255,255,255)
+else
+ay.TextColor3=y(170,170,170)
+end
+end
+
+ac[am.flag]=if aw then av else av[1]
+am.callback(ac[am.flag])
+
+update_label()
+end
+
+function am.refresh_options(au)
+for av,aw in next,am.option_instances do
+aw:Destroy()
+end
+
+am.option_instances={}
+
+for av,aw in next,au do
+local ax=am.render_option(aw)
+
+W(am.option_instances,ax)
+
+ax.MouseButton1Down:Connect(function()
+if am.multi then
+local ay=X(am.multi_items,ax.Text)
+
+if ay then
+Y(am.multi_items,ay)
+else
+W(am.multi_items,ax.Text)
+end
+
+am.set(am.multi_items)
+else
+am.set_visible(false)
+am.open=false
+
+am.set(ax.Text)
+end
+end)
+end
+end
+
+am.refresh_options(am.items)
+
+am.set(am.default)
+
+ad[am.flag]=am.set
+
+ao.MouseButton1Click:Connect(function()
+am.open=not am.open
+
+local au=ao.AbsolutePosition.X
+local av=ao.AbsolutePosition.Y
+local aw=ao.AbsoluteSize.Y
+
+as.Size=UDim2.new(0,ao.AbsoluteSize.X,as.Size.Y.Scale,as.Size.Y.Offset)
+as.Position=UDim2.new(0,au,0,av+aw+57)
+
+am.set_visible(am.open)
+update_label()
+end)
+
+a.InputEnded:Connect(function(au)
+if au.UserInputType==Enum.UserInputType.MouseButton1 then
+if not(library:mouse_in_frame(as)or library:mouse_in_frame(an))then
+am.open=false
+am.set_visible(false)
+update_label()
+end
+end
+end)
+
+return setmetatable(am,library)
+end
+
+function library.colorpicker(ak,al)
+local am={
+name=al.name or"Color",
+flag=al.flag or al.name or"Flag",
+
+color=al.color or x(1,1,1),
+alpha=al.alpha and 1-al.alpha or 0,
+
+open=false,
+callback=al.callback or function()end,
+}
+
+local an=library:create("TextButton",{
+Parent=ak.elements;
+BackgroundTransparency=1;
+Text="";
+AutoButtonColor=false;
+BorderColor3=y(0,0,0);
+Size=p(1,0,0,12);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});am.frame=an
+
+local ao=library:create("Frame",{
+AnchorPoint=n(1,0);
+Parent=an;
+Position=p(1,0,0,0);
+BorderColor3=y(0,0,0);
+Size=p(0,30,0,12);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(ao,tostring(ak.count),"BackgroundColor3")
+
+local ar=library:create("Frame",{
+Parent=ao;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+library:create("TextLabel",{
+FontFace=ae.ProggyClean;
+TextColor3=y(255,255,255);
+BorderColor3=y(0,0,0);
+Text=am.name;
+Parent=an;
+Size=p(1,0,1,0);
+Position=p(0,1,0,0);
+BackgroundTransparency=1;
+TextXAlignment=Enum.TextXAlignment.Left;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.X;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+local as=library:create("Frame",{
+Parent=library.gui;
+Position=p(0.6888179183006287,0,0.24751244485378265,0);
+BorderColor3=y(0,0,0);
+Visible=false;
+Size=p(0,150,0,150);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(as,tostring(ak.count),"BackgroundColor3")
+
+local at=library:create("Frame",{
+Parent=as;
+BorderColor3=y(0,0,0);
+Size=p(1,0,1,0);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(at,tostring(ak.count),"BackgroundColor3")
+
+local au=library:create("Frame",{
+Parent=at;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0);
+BackgroundTransparency=0.6;
+ZIndex=-1
+});
+
+library:create("UIPadding",{
+PaddingTop=q(0,7);
+PaddingBottom=q(0,-13);
+Parent=au;
+PaddingRight=q(0,6);
+PaddingLeft=q(0,7)
+});
+
+local av=library:create("Frame",{
+Parent=au;
+Position=p(0,0,1,-36);
+BorderColor3=y(0,0,0);
+Size=p(1,-1,0,16);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(av,tostring(ak.count),"BackgroundColor3")
+
+local aw=library:create("TextBox",{
+FontFace=ae.ProggyClean;
+TextColor3=y(255,255,255);
+BorderColor3=y(0,0,0);
+Text="";
+Parent=av;
+BackgroundTransparency=0;
+ClearTextOnFocus=false;
+PlaceholderColor3=y(255,255,255);
+Size=p(1,-2,1,-2);
+Position=p(0,1,0,1);
+BorderSizePixel=0;
+TextSize=12;
+TextXAlignment=Enum.TextXAlignment.Center;
+BackgroundColor3=aa.preset.inline
+});library:apply_theme(aw,"inline","BackgroundColor3")
+
+local ax=library:create("TextButton",{
+AnchorPoint=n(1,0);
+Text="";
+AutoButtonColor=false;
+Parent=au;
+Position=p(1,-1,0,0);
+BorderColor3=y(0,0,0);
+Size=p(0,14,1,-60);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset.inline
+});library:apply_theme(ax,"inline","BackgroundColor3")
+
+local ay=library:create("Frame",{
+Parent=ax;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+library:create("UIGradient",{
+Rotation=90;
+Parent=ay;
+Color=B{C(0,y(255,0,0)),C(0.17,y(255,255,0)),C(0.33,y(0,255,0)),C(0.5,y(0,255,255)),C(0.67,y(0,0,255)),C(0.83,y(255,0,255)),C(1,y(255,0,0))}
+});
+
+local az=library:create("Frame",{
+Parent=ay;
+BorderMode=Enum.BorderMode.Inset;
+BorderColor3=y(0,0,0);
+Size=p(1,2,0,3);
+Position=p(0,-1,0,-1);
+BackgroundColor3=y(255,255,255)
+});
+
+local aA=library:create("TextButton",{
+AnchorPoint=n(0,0.5);
+Text="";
+AutoButtonColor=false;
+Parent=au;
+Position=p(0,0,1,-48);
+BorderColor3=y(0,0,0);
+Size=p(1,-1,0,14);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset.inline
+});library:apply_theme(aA,"inline","BackgroundColor3")
+
+local aB=library:create("Frame",{
+Parent=aA;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=y(0,221,255)
+});
+
+local aC=library:create("ImageLabel",{
+ScaleType=Enum.ScaleType.Tile;
+BorderColor3=y(0,0,0);
+Parent=aB;
+Image="rbxassetid://18274452449";
+BackgroundTransparency=1;
+Size=p(1,0,1,0);
+TileSize=p(0,4,0,4);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+library:create("UIGradient",{
+Parent=aC;
+Rotation=0;
+Transparency=D{E(0,0),E(1,1)}
+});
+
+local aD=library:create("Frame",{
+Parent=aB;
+BorderMode=Enum.BorderMode.Inset;
+BorderColor3=y(0,0,0);
+Size=p(0,3,1,2);
+Position=p(0,-1,0,-1);
+BackgroundColor3=y(255,255,255)
+});
+
+local aE=library:create("TextButton",{
+Parent=au;
+BorderColor3=y(0,0,0);
+Size=p(1,-20,1,-60);
+Text="";
+AutoButtonColor=false;
+BorderSizePixel=0;
+BackgroundColor3=aa.preset.inline
+});library:apply_theme(aE,"inline","BackgroundColor3")
+
+local aF=library:create("Frame",{
+Parent=aE;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=y(0,221,255)
+});
+
+local aG=library:create("TextButton",{
+Parent=aF;
+Text="";
+AutoButtonColor=false;
+BorderColor3=y(0,0,0);
+Size=p(1,0,1,0);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+library:create("UIGradient",{
+Parent=aG;
+Transparency=D{E(0,0),E(1,1)}
+});
+
+local aH=library:create("Frame",{
+Parent=aF;
+BorderColor3=y(0,0,0);
+Size=p(0,3,0,3);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});
+
+library:create("Frame",{
+Parent=aH;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+local aI=library:create("TextButton",{
+Parent=aF;
+Text="";
+AutoButtonColor=false;
+Size=p(1,0,1,0);
+BorderColor3=y(0,0,0);
+ZIndex=2;
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+library:create("UIGradient",{
+Rotation=270;
+Transparency=D{E(0,0),E(1,1)};
+Parent=aI;
+Color=B{C(0,y(0,0,0)),C(1,y(0,0,0))}
+});
+
+local aJ=false
+local aK=false
+local aL=false
+
+local aM,aN,aO=am.color:ToHSV()
+local aP=am.alpha
+
+ac[am.flag]={}
+
+function am.set_visible(aQ)
+as.Visible=aQ
+
+as.Position=w(ar.AbsolutePosition.X-1,ar.AbsolutePosition.Y+ar.AbsoluteSize.Y+65)
+end
+
+function am.set(aQ,aR)
+if aQ then
+aM,aN,aO=aQ:ToHSV()
+end
+
+if aR then
+aP=aR
+end
+
+local aS=Color3.fromHSV(aM,aN,aO)
+
+az.Position=p(0,-1,aM,-1)
+aD.Position=p(1-aP,-1,0,-1)
+aH.Position=p(aN,-1,1-aO,-1)
+
+aB.BackgroundColor3=Color3.fromHSV(aM,1,1)
+ar.BackgroundColor3=aS
+aF.BackgroundColor3=Color3.fromHSV(aM,1,1)
+
+ac[am.flag]={
+Color=aS;
+Transparency=aP
+}
+
+local aT=ar.BackgroundColor3
+aw.Text=string.format("%s, %s, %s, ",library:round(aT.R*255),library:round(aT.G*255),library:round(aT.B*255))
+aw.Text..=library:round(1-aP,0.01)
+
+am.callback(aS,aP)
+end
+
+function am.update_color()
+local aQ=a:GetMouseLocation()
+local aR=n(aQ.X,aQ.Y-I)
+
+if aJ then
+aN=math.clamp((aR-aE.AbsolutePosition).X/aE.AbsoluteSize.X,0,1)
+aO=1-math.clamp((aR-aE.AbsolutePosition).Y/aE.AbsoluteSize.Y,0,1)
+elseif aK then
+aM=math.clamp((aR-ax.AbsolutePosition).Y/ax.AbsoluteSize.Y,0,1)
+elseif aL then
+aP=1-math.clamp((aR-aA.AbsolutePosition).X/aA.AbsoluteSize.X,0,1)
+end
+
+am.set(nil,nil)
+end
+
+am.set(am.color,am.alpha)
+
+ad[am.flag]=am.set
+
+an.MouseButton1Click:Connect(function()
+am.open=not am.open
+
+am.set_visible(am.open)
+end)
+
+a.InputChanged:Connect(function(aQ)
+if(aJ or aK or aL)and aQ.UserInputType==Enum.UserInputType.MouseMovement then
+am.update_color()
+end
+end)
+
+library:connection(a.InputEnded,function(aQ)
+if aQ.UserInputType==Enum.UserInputType.MouseButton1 then
+aJ=false
+aK=false
+aL=false
+
+if not(library:mouse_in_frame(an)or library:mouse_in_frame(as))then
+am.open=false
+am.set_visible(false)
+end
+end
+end)
+
+aA.MouseButton1Down:Connect(function()
+aL=true
+end)
+
+ax.MouseButton1Down:Connect(function()
+aK=true
+end)
+
+aI.MouseButton1Down:Connect(function()
+print"hiu"
+aJ=true
+end)
+
+aw.FocusLost:Connect(function()
+local aQ,aR,aS,aT=library:convert(aw.Text)
+
+if aQ and aR and aS and aT then
+am.set(y(aQ,aR,aS),1-aT)
+end
+end)
+
+return setmetatable(am,library)
+end
+
+function library.textbox(ak,al)
+local am={
+name=al.name or"...",
+placeholder=al.placeholder or al.placeholdertext or al.holder or al.holdertext or"type here...",
+default=al.default,
+flag=al.flag or al.name or"Flag",
+callback=al.callback or function()end,
+visible=al.visible or true,
+}
+
+local an=library:create("TextButton",{
+AnchorPoint=n(1,0);
+Text="";
+AutoButtonColor=false;
+Parent=ak.elements;
+Position=p(1,0,0,0);
+BorderColor3=y(0,0,0);
+Size=p(1,0,0,16);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(an,tostring(ak.count),"BackgroundColor3")
+
+local ao=library:create("Frame",{
+Parent=an;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset.inline
+});library:apply_theme(ao,"inline","BackgroundColor3")
+
+local ar=library:create("TextBox",{
+Parent=an,
+Name="",
+FontFace=ae.ProggyClean,
+TextTruncate=Enum.TextTruncate.AtEnd,
+TextSize=12,
+Text="",
+Size=p(1,-6,1,0),
+RichText=true,
+TextColor3=y(255,255,255),
+BorderColor3=y(0,0,0),
+CursorPosition=-1,
+BackgroundTransparency=1,
+TextXAlignment=Enum.TextXAlignment.Left,
+Position=p(0,6,0,0),
+BorderSizePixel=0,
+PlaceholderColor3=y(170,170,170),
+})
+
+function am.set(as)
+ac[am.flag]=as
+
+ar.Text=as
+
+am.callback(as)
+end
+
+ad[am.flag]=am.set
+
+if am.default then
+am.set(am.default)
+end
+
+ar:GetPropertyChangedSignal"Text":Connect(function()
+am.set(ar.Text)
+end)
+
+return setmetatable(am,library)
+end
+
+function library.keybind(ak,al)
+local am={
+flag=al.flag or al.name or"Flag",
+callback=al.callback or function()end,
+open=false,
+binding=nil,
+name=al.name or nil,
+ignore_key=al.ignore or false,
+
+key=al.key or nil,
+force_toggle=al.force_toggle or false,
+mode=al.force_toggle and"toggle"or(al.mode or"toggle"),
+active=al.default or false,
+
+hold_instances={},
+}
+
+ac[am.flag]={}
+W(library.keybinds,am)
+
+local an=library:create("Frame",{
+Parent=ak.elements;
+BackgroundTransparency=1;
+BorderColor3=y(0,0,0);
+Size=p(1,0,0,16);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+local ao=library:create("TextButton",{
+AnchorPoint=n(1,0);
+AutoButtonColor=false;
+Text="";
+Parent=an;
+Position=p(1,0,0,0);
+BorderColor3=y(0,0,0);
+Size=p(0,68,0,16);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(ao,tostring(ak.count),"BackgroundColor3")
+
+local ar=library:create("Frame",{
+Parent=ao;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=y(35,35,35)
+});
+
+local as=library:create("TextLabel",{
+FontFace=ae.ProggyClean;
+TextColor3=y(255,255,255);
+BorderColor3=y(0,0,0);
+Text=am.name;
+Parent=ar;
+Size=p(1,0,1,0);
+BackgroundTransparency=1;
+Position=p(0,0,0,-1);
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.X;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+library:create("TextLabel",{
+FontFace=ae.ProggyClean;
+TextColor3=y(255,255,255);
+BorderColor3=y(0,0,0);
+Text=am.name;
+Parent=an;
+Size=p(1,0,1,0);
+Position=p(0,1,0,0);
+BackgroundTransparency=1;
+TextXAlignment=Enum.TextXAlignment.Left;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.X;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+local au=library:create("Frame",{
+Parent=library.gui;
+Visible=false;
+Size=p(0.0907348021864891,0,0.006218905560672283,20);
+Position=p(0,500,0,100);
+BorderColor3=y(0,0,0);
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.Y;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(au,tostring(ak.count),"BackgroundColor3")
+
+local av=library:create("Frame",{
+Parent=au;
+Size=p(1,-2,1,-2);
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.Y;
+BackgroundColor3=aa.preset.inline
+});library:apply_theme(av,"inline","BackgroundColor3")
+
+library:create("UIListLayout",{
+Parent=av;
+Padding=q(0,6);
+SortOrder=Enum.SortOrder.LayoutOrder
+});
+
+library:create("UIPadding",{
+PaddingTop=q(0,5);
+PaddingBottom=q(0,2);
+Parent=av;
+PaddingRight=q(0,6);
+PaddingLeft=q(0,6)
+});
+
+library:create("UIPadding",{
+PaddingBottom=q(0,2);
+Parent=au
+});
+
+local aw=am.force_toggle and{"Toggle"}or{"Hold","Toggle","Always"}
+
+for ax,ay in aw do
+local az=library:create("TextButton",{
+FontFace=ae.ProggyClean;
+TextColor3=y(170,170,170);
+BorderColor3=y(0,0,0);
+Text=ay;
+Parent=av;
+Position=p(0,0,0,1);
+BackgroundTransparency=1;
+TextXAlignment=Enum.TextXAlignment.Left;
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.XY;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});am.hold_instances[ay]=az
+
+az.MouseButton1Click:Connect(function()
+am.set(ay)
+
+am.set_visible(false)
+
+am.open=false
+end)
+end
+
+function am.modify_mode_color(ax)
+for ay,az in am.hold_instances do
+az.TextColor3=y(170,170,170)
+end
+
+if am.hold_instances[ax]then
+am.hold_instances[ax].TextColor3=y(255,255,255)
+end
+end
+
+function am.set_mode(ax)
+am.mode=am.force_toggle and"Toggle"or ax
+
+if am.mode=="Always"then
+am.set(true)
+elseif am.mode=="Hold"then
+am.set(false)
+end
+
+ac[am.flag].mode=am.mode
+am.modify_mode_color(am.mode)
+end
+
+function am.set(ax)
+if type(ax)=="boolean"then
+local ay=ax
+
+if am.mode=="Always"then
+ay=true
+end
+
+am.active=ay
+am.callback(ay)
+elseif tostring(ax):find"Enum"then
+ax=ax.Name=="Escape"and nil or ax
+
+am.key=ax
+
+am.callback(am.active or false)
+elseif X({"Toggle","Hold","Always"},ax)then
+am.set_mode(ax)
+
+if ax=="Always"then
+am.active=true
+end
+
+am.callback(am.active or false)
+elseif type(ax)=="table"then
+ax.key=type(ax.key)=="string"and ax.key~="..."and library:convert_enum(ax.key)or ax.key
+
+ax.key=ax.key==Enum.KeyCode.Escape and nil or ax.key
+am.key=ax.key
+
+ax.mode=am.force_toggle and"Toggle"or(ax.mode or"Toggle")
+am.mode=ax.mode
+am.set_mode(ax.mode)
+
+if ax.active then
+am.active=ax.active
+end
+end
+
+ac[am.flag]={
+name=am.name,
+mode=am.mode,
+key=am.key,
+active=am.active
+}
+
+library:update_keybind_visualizer()
+
+local ay=am.key and tostring(am.key)~="Enums"and(ab[am.key]or tostring(am.key):gsub("Enum.",""))or nil
+local az=ay and(tostring(ay):gsub("KeyCode.",""):gsub("UserInputType.",""))or"none"
+
+as.Text=" "..az.." "
+
+end
+
+function am.set_visible(ax)
+au.Visible=ax
+
+au.Size=p(0,ao.AbsoluteSize.X,0,au.Size.Y.Offset)
+au.Position=p(0,ao.AbsolutePosition.X,0,ao.AbsolutePosition.Y+77)
+end
+
+local function get_input_key(ax)
+if ax.UserInputType==Enum.UserInputType.Keyboard then
+return ax.KeyCode
+end
+
+return ax.UserInputType
+end
+
+local function is_typing()
+return a:GetFocusedTextBox()~=nil
+end
+
+ao.MouseButton1Down:Connect(function()
+task.wait()
+as.Text="..."
+
+am.binding=library:connection(a.InputBegan,function(ax,ay)
+am.set(get_input_key(ax))
+
+am.binding:Disconnect()
+am.binding=nil
+end)
+end)
+
+ao.MouseButton2Down:Connect(function()
+am.open=not am.open
+
+am.set_visible(am.open)
+end)
+
+library:connection(a.InputBegan,function(ax,ay)
+if is_typing()then return end
+
+local az=get_input_key(ax)
+if az==am.key then
+if am.mode=="Toggle"then
+am.active=not am.active
+am.set(am.active)
+elseif am.mode=="Hold"then
+am.set(true)
+end
+end
+end)
+
+library:connection(a.InputEnded,function(ax,ay)
+if is_typing()then
+return
+end
+
+local az=get_input_key(ax)
+if az==am.key then
+if am.mode=="Hold"then
+am.set(false)
+end
+end
+
+if ax.UserInputType==Enum.UserInputType.MouseButton1 then
+if not(library:mouse_in_frame(ao)or library:mouse_in_frame(au))then
+am.open=false
+am.set_visible(false)
+end
+end
+end)
+
+ad[am.flag]=am.set
+am.set{mode=am.mode,active=am.active,key=am.key}
+
+return setmetatable(am,library)
+end
+
+function library.button(ak,al)
+local am={
+name=al.name or"button",
+callback=al.callback or function()end,
+}
+
+local an=library:create("TextButton",{
+AnchorPoint=n(1,0);
+Text="";
+AutoButtonColor=false;
+Parent=ak.elements;
+Position=p(1,0,0,0);
+BorderColor3=y(0,0,0);
+Size=p(0,136,0,16);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset[tostring(ak.count)]
+});library:apply_theme(an,tostring(ak.count),"BackgroundColor3")
+
+local ao=library:create("Frame",{
+Parent=an;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=aa.preset.inline
+});library:apply_theme(ao,"inline","BackgroundColor3")
+
+library:create("TextLabel",{
+FontFace=ae.ProggyClean;
+TextColor3=y(255,255,255);
+BorderColor3=y(0,0,0);
+Text=am.name;
+Parent=an;
+Size=p(1,0,1,0);
+BackgroundTransparency=1;
+Position=p(0,1,0,-1);
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.X;
+TextSize=12;
+BackgroundColor3=y(255,255,255)
+});
+
+an.MouseButton1Click:Connect(function()
+am.callback()
+end)
+
+return setmetatable(am,library)
+end
+
+function library.init_config(ak,al)
+local am;
+local an
+
+for ao,as in next,al.tabs or{}do
+if type(as.name)=="string"and as.name:lower()=="misc"then
+an=as
+break
+end
+end
+
+if not an then
+an=al:tab{name="misc"}
+end
+
+local ao=an:column{}
+local as=an:column{}
+local au=an:column{}
+
+local av=ao:section{name="misc",size=1,default=true}
+library.freecam_keybind=av:keybind{
+name="freecam",
+flag="freecam_key",
+key=Enum.KeyCode.F4,
+mode="toggle",
+force_toggle=true,
+callback=function(aw)
+_.set_active(aw)
+end,
+}
+av:dropdown{name="fov",flag="aimbot_fov_circle",items={"off","circle"},default="circle"}
+av:colorpicker{name="fov color",flag="aimbot_fov_color",color=y(255,255,255)}
+av:dropdown{name="hitsound",flag="hitsound",items={"none","tf2","minecraft","switch","neverlose","rust"},default="none"}
+
+local aw=ao:section{name="movement",size=1,default=true,auto_fill=true}
+aw:keybind{name="noclip",flag="noclip_key",key=Enum.KeyCode.None,mode="toggle"}
+aw:keybind{name="airstuck",flag="force_stuck",key=Enum.KeyCode.None,mode="toggle"}
+aw:keybind{
+name="speedhack",
+flag="speedhack_key",
+key=Enum.KeyCode.X,
+mode="toggle",
+}
+aw:slider{name="speed",flag="speedhack_speed",min=12,max=200,default=16,interval=1,suffix=""}
+aw:toggle{name="jump restriction",flag="no_jump_restrictions",default=false,enabled=false}
+
+
+local ax=as:section{name="fov changer",auto_fill=true,size=1}
+ax:toggle{name="enabled",flag="fov_changer_enabled",default=false,enabled=false}
+ax:slider{name="amount",flag="fov_changer_amount",min=60,max=120,default=90,interval=1,suffix=""}
+ax:keybind{
+name="zoom key",
+flag="fov_changer_zoom_key",
+key=Enum.KeyCode.Z,
+mode="Hold",
+}
+ax:slider{name="zoom amount",flag="fov_changer_zoom_amount",min=5,max=60,default=25,interval=1,suffix=""}
+
+local ay=au:section{name="config",size=1,default=true}
+ay:keybind{
+name="menu key",
+flag="menu_key",
+key=Enum.KeyCode.Insert,
+mode="toggle",
+force_toggle=true,
+ignore=true,
+callback=function(az)
+al.toggle_menu(az)
+end,
+}
+af=ay:dropdown{name="config",options={"Report","This","Error","To","Finobe"},callback=function(az)if am then am.set(az)end end,flag="config_name_list"};library:update_config_list()
+am=ay:textbox{name="Config name:",flag="config_name_text"}
+ay:button{name="Save",callback=function()writefile(library.directory.."/configs/"..ac.config_name_text..".cfg",library:get_config())library:update_config_list()end}
+ay:button{name="Load",callback=function()library:load_config(readfile(library.directory.."/configs/"..ac.config_name_text..".cfg"))library:update_config_list()end}
+ay:button{name="Delete",callback=function()delfile(library.directory.."/configs/"..ac.config_name_text..".cfg")library:update_config_list()end}
+
+local az=au:section{name="theme",size=1,default=true}
+az:dropdown{
+name="theme",
+flag="theme",
+items={"morytania","ancient","new","dark"},
+callback=function(aA)
+if aA=="ancient"then
+local aB=y(109,78,110)
+local aC=y(54,82,114)
+local aD=y(0,88,126)
+
+library:update_theme("1",aB)
+library:update_theme("2",aC)
+library:update_theme("3",aD)
+
+library.gradient.Color=B{
+C(0,aB),
+C(0.5,aC),
+C(1,aD),
+};
+
+library.watermark_gradient.Color=B{
+C(0,aB),
+C(0.5,aC),
+C(1,aD),
+};
+elseif aA=="new"then
+local aB=z"#360820"
+local aC=z"#360820"
+local aD=z"#360820"
+
+library:update_theme("1",aB)
+library:update_theme("2",aC)
+library:update_theme("3",aD)
+
+library.gradient.Color=B{
+C(0,aB),
+C(0.5,aC),
+C(1,aD),
+};
+
+library.watermark_gradient.Color=B{
+C(0,aB),
+C(0.5,aC),
+C(1,aD),
+};
+elseif aA=="dark"then
+local aB=z"#1D1D1D"
+
+library:update_theme("1",aB)
+library:update_theme("2",aB)
+library:update_theme("3",aB)
+
+library.gradient.Color=B{
+C(0,aB),
+C(0.5,aB),
+C(1,aB),
+};
+
+library.watermark_gradient.Color=B{
+C(0,aB),
+C(0.5,aB),
+C(1,aB),
+};
+else
+local aB=z"#245771"
+local aC=z"#215D63"
+local aD=z"#1E6453"
+
+library:update_theme("1",aB)
+library:update_theme("2",aC)
+library:update_theme("3",aD)
+
+library.gradient.Color=B{
+C(0,aB),
+C(0.5,aC),
+C(1,aD),
+};
+
+library.watermark_gradient.Color=B{
+C(0,aB),
+C(0.5,aC),
+C(1,aD),
+};
+end
+end,
+default="morytania"
+}
+end
+
+local ak=library:window{
+name="priv9.net | Cold War",
+}
+
+library:connection(a.InputBegan,function(al,am)
+
+local an=ac.menu_key
+
+if an and an.key then
+if al.KeyCode==an.key then
+ak.toggle_menu(not ak.main_outline.Visible)
+end
+elseif al.KeyCode==Enum.KeyCode.Insert then
+ak.toggle_menu(not ak.main_outline.Visible)
+end
+end)
+
+local al
+
+local am=false
+local an=false
+local ao=false
+
+local as=ak:tab{name="rage"}
+local au=as:column{}
+local av=au:section{name="aimbot",auto_fill=false,size=0.3}
+local aw=au:section{name="target selection",auto_fill=true,size=0.7}
+local ax=av:toggle{name="enabled",flag="aimbot_enabled",default=false,enabled=true,callback=function(ax)
+am=ax
+ac.aimbot_enabled=ax
+end}
+ax.set(false)
+ac.aimbot_enabled=false
+av:keybind{name="aim key",flag="aim_key",key=Enum.UserInputType.MouseButton2,mode="Hold"}
+av:toggle{name="silent",flag="aimbot_silent",default=false,enabled=false,callback=function(az)
+an=az
+ac.aimbot_silent=az
+end}
+av:slider{name="smooth",flag="aimbot_smooth",min=0,max=10,default=1,interval=0.1,suffix=""}
+
+aw:toggle{name="target team",flag="aimbot_target_team",default=false,enabled=false,callback=function(az)
+ao=az
+ac.aimbot_target_team=az
+end}
+aw:dropdown{name="hitbox",flag="aimbot_hitbox",items={"head","body"},default="body"}
+aw:slider{name="fov",flag="aimbot_fov",min=0,max=360,default=40,interval=1,suffix=""}
+aw:slider{name="max distance",flag="aimbot_max_distance",min=0,max=5000,default=0,interval=1,suffix=""}
+
+local az=as:column{}
+local aA=az:section{name="weapon modifications"}
+
+aA:slider{name="recoil multiplier",flag="recoil_mult",min=0,max=1,default=1,interval=0.01,suffix="x"}
+aA:toggle{name="no-spread",flag="no_spread",default=false,enabled=false}
+aA:toggle{name="no sway",flag="no_sway",default=false,enabled=false}
+
+az:section{name="other",auto_fill=true,size=0.7}
+
+local aB=ak:tab{name="visuals"}
+local aC=aB:column{}
+local aD=aB:column{}
+local aE=aB:column{}
+
+local aF=aC:section{name="selection",size=1,default=true}
+library:create_visuals_selection(aF)
+library:apply_theme(aF.frame,tostring(aF.count),"BackgroundColor3")
+local aG={}
+local aH={
+{id="player",label="player",center_label="filter (players)",right_label="options (player)"},
+{id="misc",label="world",center_label="world",right_label="removals",auto_fill=false},
+{id="name_misc",label="misc",center_label="fonts",right_label="misc options",auto_fill=false},
+}
+
+for aI,aJ in next,aH do
+
+if aJ.id=="scientist"then
+
+local aK=function()return tostring(math.random(1000,9999))end
+
+local aL=aD:section{name="filter_"..aK(),auto_fill=false,size=0.5}
+local aM=aD:section{name="details_"..aK(),auto_fill=false,size=0.5}
+
+local aN=aE:section{name="options_"..aK(),auto_fill=false,size=0.5}
+local aO=aE:section{name="meta_"..aK(),auto_fill=false,size=0.5}
+
+aL:toggle{name="enable scientist",flag="scientist_enable"}
+aM:slider{name="scientist power",min=0,max=100,default=50,interval=1,suffix=""}
+
+aN:button{name="Apply",callback=function()ag:create_notification{name="Applied scientist settings"}end}
+aO:dropdown{name="mode",flag="scientist_mode",items={"Alpha","Beta","Gamma"},default="Alpha"}
+
+local aP=library:register_visuals_page(aJ.id,aJ.label,{aL,aM},{aN,aO})
+aG[aJ.id]=aP
+else
+local aK=library:create_visuals_page(aD,aE,aJ)
+
+local aL=library:register_visuals_page(aJ.id,aJ.label,aK.center,aK.right)
+aG[aJ.id]=aL
+end
+end
+
+do
+local aI=aG.player
+if aI and aI.center and aI.right then
+local aJ=aI.center
+local aK=aI.right
+
+aJ:slider{name="max distance",flag="player_max_distance",min=0,max=5000,default=0,interval=1,suffix=""}
+aJ:toggle{name="enabled",flag="Enabled",default=true,callback=function()if al then al.refresh_elements()end end}
+aJ:toggle{name="teammates",flag="player_teammates",default=true,callback=function()if al then al.refresh_elements()end end}
+aJ:toggle{name="local",flag="player_local",default=true,callback=function()if al then al.refresh_elements()end end}
+
+aK:toggle{name="box",flag="Boxes",default=true,callback=function()if al then al.refresh_elements()end end}
+aK:toggle{name="skeleton",flag="Skeletons",default=true,callback=function()if al then al.refresh_elements()end end}
+aK:colorpicker{name="box/skel color",flag="Box_Color",callback=function(aL)
+ac.Skeletons_Color={Color=aL}
+if al then al.refresh_elements()end
+end}
+aK:toggle{name="health bar",flag="Healthbar",default=true,callback=function()if al then al.refresh_elements()end end}
+aK:toggle{name="name",flag="Names",default=true,callback=function()if al then al.refresh_elements()end end}
+aK:colorpicker{name="text color",flag="Name_Color",callback=function(aL)
+ac.Distance_Color={Color=aL}
+ac.Weapon_Color={Color=aL}
+if al then al.refresh_elements()end
+end}
+aK:toggle{name="weapon",flag="Weapon",default=true,callback=function()if al then al.refresh_elements()end end}
+aK:toggle{name="distance",flag="Distance",default=true,callback=function()if al then al.refresh_elements()end end}
+aK:toggle{name="flags",flag="player_flags",callback=function()if al then al.refresh_elements()end end}
+aK:toggle{name="offscreen arrow",flag="player_offscreen"}
+aK:colorpicker{name="offscreen color",flag="player_offscreen_color"}
+
+local aL,aM
+
+aK:toggle{name="chams",flag="chams_enabled",default=false,callback=function(aN)
+if aL and aL.frame then
+aL.frame.Visible=aN
+if not aN then
+aL.open=false
+aL.set_visible(false)
+end
+end
+
+if aM and aM.frame then
+aM.frame.Visible=aN
+if not aN then
+aM.open=false
+aM.set_visible(false)
+end
+end
+
+if al then al.refresh_elements()end
+end}
+
+aL=aK:colorpicker{name="occluded",flag="chams_occluded",color=y(7,255,49),alpha=0.11,callback=function()
+if al then al.refresh_elements()end
+end}
+
+aM=aK:colorpicker{name="visible",flag="chams_visible",color=y(255,0,0),alpha=1,callback=function()
+if al then al.refresh_elements()end
+end}
+
+aL.frame.Visible=false
+aM.frame.Visible=false
+end
+end
+
+do
+local aI=aG.misc
+if aI and aI.center and aI.right then
+local aJ=aI.center
+local aK=aI.right
+
+aJ:toggle{name="enabled",flag="world_enabled",default=false}
+aJ:slider{name="clock time",flag="world_clock_time",min=0,max=24,default=19.7,interval=0.1,suffix=""}
+aJ:slider{name="brightness",flag="world_brightness",min=-20,max=20,default=20,interval=0.1,suffix=""}
+aJ:toggle{name="global shadows",flag="world_global_shadows",default=true}
+aJ:slider{name="exposure",flag="world_exposure",min=-20,max=20,default=-1,interval=0.1,suffix=""}
+aJ:colorpicker{name="ambient",flag="world_ambient",color=y(75,136,174)}
+
+
+
+
+
+
+
+local aL={}
+local aM={}
+
+local function sync_lighting_names()
+for aN,aO in ipairs(g:GetChildren())do
+if not aO:IsA"Script"and not aO:IsA"ModuleScript"then
+local aP=aO.Name
+local aQ=false
+
+for aR=1,#aL do
+if aL[aR]==aP then
+aQ=true
+break
+end
+end
+
+if not aQ then
+table.insert(aL,aP)
+end
+end
+end
+end
+
+local function apply_lighting_removals(aN)
+aN=aN or{}
+
+local aO={}
+
+for aP,aQ in ipairs(aN)do
+aO[aQ]=true
+end
+
+for aP,aQ in ipairs(g:GetChildren())do
+if aO[aQ.Name]and not aM[aQ.Name]then
+aM[aQ.Name]=aQ
+aQ.Parent=nil
+end
+end
+
+for aP,aQ in pairs(aM)do
+if not aO[aP]then
+
+
+
+if aQ and aQ.Parent==nil then
+pcall(function()
+aQ.Parent=g
+end)
+end
+
+aM[aP]=nil
+end
+end
+end
+
+sync_lighting_names()
+
+local aN=aK:dropdown{
+name="remove",
+flag="removals_lights",
+multi=true,
+default={},
+items=aL,
+callback=apply_lighting_removals,
+}
+
+
+
+
+task.spawn(function()
+while true do
+task.wait(5)
+
+if not aN.open then
+local aO=#aL
+sync_lighting_names()
+
+if#aL>aO then
+aN.items=aL
+aN.refresh_options(aL)
+aN.set(aN.multi_items)
+end
+end
+end
+end)
+
+local aO=aE:section{name="tracers",auto_fill=true}
+aO.frame.Visible=false
+aO:toggle{name="enabled",flag="tracer_enabled",default=false}
+aO:colorpicker{name="color",flag="tracer_color",color=y(255,200,60)}
+aO:slider{name="lifetime",flag="tracer_lifetime",min=0.1,max=3,default=0.5,interval=0.05,suffix="s"}
+
+
+
+
+
+local aP=aD:section{name="weapon chams",auto_fill=true}
+aP:toggle{name="enabled",flag="weapon_chams_enabled",default=false}
+aP:dropdown{
+name="material",
+flag="weapon_chams_material",
+items={"ForceField","Neon","Glass"},
+default="Neon",
+}
+aP:colorpicker{name="color",flag="weapon_chams_color",color=y(255,0,255),alpha=1}
+
+aI.extra=aI.extra or{}
+table.insert(aI.extra,aO)
+table.insert(aI.extra,aP)
+end
+end
+
+
+
+
+
+
+
+local aI={}
+local aJ
+local aK=false
+
+local function weapon_chams_restore_all()
+for aL,aM in pairs(aI)do
+pcall(function()
+if aL and aL.Parent and aM then
+aL.Material=aM.material or aL.Material
+aL.Color=aM.color or aL.Color
+
+if aL:IsA"MeshPart"and aM.texture_id~=nil then
+aL.TextureID=aM.texture_id
+end
+
+if aM.sa then
+if not aM.sa.Parent then
+aM.sa.Parent=aL
+end
+
+if aM.sa_color then
+aM.sa.Color=aM.sa_color
+end
+end
+end
+end)
+end
+
+aI={}
+end
+
+
+
+
+
+
+
+
+local function weapon_chams_targets(aL)
+local aM={}
+
+if not aL then
+return aM
+end
+
+local aN=aL.Name
+
+local aO=d and d:FindFirstChild"Tools"
+
+if aO then
+local aP=aO:FindFirstChild(aN)
+
+if aP then
+table.insert(aM,aP)
+end
+end
+
+local aP=c and c:FindFirstChild"Ignore"
+
+if aP then
+local aQ=aP:FindFirstChild(aN.."Viewmodel")
+
+if aQ then
+local aR=aQ:FindFirstChild(aN)
+
+if aR then
+table.insert(aM,aR)
+else
+table.insert(aM,aQ)
+end
+end
+end
+
+return aM
+end
+
+h.RenderStepped:Connect(function()
+local aL=ac.weapon_chams_enabled and true or false
+
+if aL~=aK then
+aK=aL
+
+if not aL then
+weapon_chams_restore_all()
+end
+end
+
+if not aL then
+return
+end
+
+local aM=G.Character
+local aN=aM and aM:FindFirstChildOfClass"Tool"or nil
+
+if aN~=aJ then
+weapon_chams_restore_all()
+aJ=aN
+end
+
+local aO=weapon_chams_targets(aN)
+
+if#aO==0 then
+return
+end
+
+local aP=ac.weapon_chams_material or"Neon"
+local aQ=Enum.Material[aP]or Enum.Material.Neon
+local aR=ac.weapon_chams_color
+
+local aS=(type(aR)=="table"and aR.Color)or Color3.new(1,1,1)
+
+for aT,aU in ipairs(aO)do
+for aV,aW in ipairs(aU:GetDescendants())do
+if aW:IsA"BasePart"then
+local aX=(aW.Transparency or 0)>=0.9
+or(aW.LocalTransparencyModifier or 0)>=0.9
+
+if not aX then
+if not aI[aW]then
+local aY=aW:FindFirstChildOfClass"SurfaceAppearance"
+
+aI[aW]={
+material=aW.Material,
+color=aW.Color,
+texture_id=aW:IsA"MeshPart"and aW.TextureID or nil,
+sa=aY,
+sa_color=aY and aY.Color or nil,
+}
+end
+
+aW.Material=aQ
+aW.Color=aS
+
+if aW:IsA"MeshPart"then
+aW.TextureID=""
+end
+
+local aY=aW:FindFirstChildOfClass"SurfaceAppearance"
+
+if aY and aY~=aI[aW].sa then
+aI[aW].sa=aY
+aI[aW].sa_color=aY.Color
+end
+
+if aY then
+aY.Parent=nil
+end
+end
+end
+end
+end
+end)
+
+
+
+local aL={
+ClockTime=g.ClockTime,
+Brightness=g.Brightness,
+GlobalShadows=g.GlobalShadows,
+ExposureCompensation=g.ExposureCompensation,
+Ambient=g.Ambient,
+}
+
+local aM=false
+
+h.Heartbeat:Connect(function()
+local aN=ac.world_enabled
+if aN~=aM then
+aM=aN
+if not aN then
+
+g.ClockTime=aL.ClockTime
+g.Brightness=aL.Brightness
+g.GlobalShadows=aL.GlobalShadows
+g.ExposureCompensation=aL.ExposureCompensation
+g.Ambient=aL.Ambient
+end
+end
+
+if aN then
+g.ClockTime=ac.world_clock_time or 1
+g.Brightness=ac.world_brightness or 2
+g.GlobalShadows=ac.world_global_shadows~=false
+g.ExposureCompensation=ac.world_exposure or 0
+
+local aO=ac.world_ambient
+if type(aO)=="table"and aO.Color then
+g.Ambient=aO.Color
+end
+end
+end)
+
+library:set_visuals_page"player"
+
+ak:tab{name="misc"}
+
+library:init_config(ak)
+
+local aN=F.FieldOfView
+local aO=F.FieldOfView
+local aP=false
+local aQ=0.12
+local aR=aO
+local aS=aO
+local aT=aQ
+
+local function ease_in_out_expo(aU)
+if aU<=0 or aU>=1 then
+return aU
+end
+if aU<0.5 then
+return math.pow(2,20*aU-10)/2
+end
+return(2-math.pow(2,-20*aU+10))/2
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+h.Heartbeat:Connect(function(aU)
+local aV=ac.fov_changer_zoom_key
+local aW=type(aV)=="table"and(aV.active or false)
+local aX=ac.fov_changer_enabled
+
+local aY=aW and(ac.fov_changer_zoom_amount or 60)
+or(aX and(ac.fov_changer_amount or 90))
+or nil
+
+if aY then
+if not aP then
+aO=F.FieldOfView
+aN=aO
+aR=aO
+aS=aY
+aT=0
+aP=true
+elseif aS~=aY then
+aR=aO
+aS=aY
+aT=0
+end
+elseif aP then
+if aS~=aN then
+aR=aO
+aS=aN
+aT=0
+end
+else
+aN=F.FieldOfView
+aO=aN
+end
+
+if aP then
+aT=aT+aU
+local aZ=ease_in_out_expo(math.min(1,aT/aQ))
+aO=aR+(aS-aR)*aZ
+F.FieldOfView=math.max(1,aO)
+
+if not aY and aZ>=1 then
+aO=aN
+aP=false
+end
+end
+end)
+
+
+
+
+
+F:GetPropertyChangedSignal"FieldOfView":Connect(function()
+if aP then
+local aU=F.FieldOfView
+if math.abs(aU-aO)>0.5 then
+aN=aU
+F.FieldOfView=math.max(1,aO)
+end
+end
+end)
+
+local function get_effective_aimbot_fov()
+local aU=ac.fov_changer_enabled and(ac.fov_changer_amount or 90)or aN
+local aV=aO
+if type(aU)~="number"or aU<=1 then
+aU=70
+end
+if type(aV)~="number"or aV<=1 then
+aV=aU
+end
+local aW=math.tan(math.rad(aU/2))/math.tan(math.rad(aV/2))
+aW=math.clamp(aW,0.25,4)
+return(ac.aimbot_fov or 0)*aW
+end
+
+local aU={autojump=nil,jumppower=nil,jumpheight=nil}
+local aV=false
+local aW=false
+local aX=false
+
+h.Stepped:Connect(function(aY,aZ)
+local a_=G.Character
+if not a_ then
+return
+end
+
+local a0=a_:FindFirstChildOfClass"Humanoid"
+if not a0 then
+return
+end
+
+local a1=ac.noclip_key
+local a2=type(a1)=="table"and a1.active or false
+
+if a2 then
+for a3,a4 in pairs(a_:GetDescendants())do
+if a4:IsA"BasePart"then
+a4.CanCollide=false
+end
+end
+local a3=a0.RootPart or a_:FindFirstChild"HumanoidRootPart"
+if a3 then
+a0:ChangeState(Enum.HumanoidStateType.Running)
+end
+elseif aX then
+local a3=a0.RootPart or a_:FindFirstChild"HumanoidRootPart"
+if a3 then
+a3.CanCollide=true
+a0:ChangeState(Enum.HumanoidStateType.GettingUp)
+end
+end
+aX=a2
+
+local a3=ac.speedhack_key
+local a4=type(a3)=="table"and a3.active or false
+
+if a4 then
+local a5=a0.RootPart or a_:FindFirstChild"HumanoidRootPart"
+if a5 and a0.Health>0 then
+local a6=a0.MoveDirection
+if a6.Magnitude>0 then
+
+local a7=V(ac.speedhack_speed or 16,1,200)
+a5.CFrame=a5.CFrame+a6*(a7*aZ)
+end
+end
+end
+
+local a5=ac.no_jump_restrictions==true
+
+if a5 then
+if not aV then
+aU.autojump=a0.AutoJumpEnabled
+if a0.UseJumpPower then
+aU.jumppower=a0.JumpPower
+else
+aU.jumpheight=a0.JumpHeight
+end
+aV=true
+end
+
+a0.AutoJumpEnabled=true
+a0.JumpHeight=50
+a0.JumpPower=50
+
+local a6=a:IsKeyDown(Enum.KeyCode.Space)
+if a6 and not aW then
+a0:ChangeState(Enum.HumanoidStateType.Jumping)
+end
+aW=a6
+elseif aV then
+a0.AutoJumpEnabled=aU.autojump
+if a0.UseJumpPower then
+a0.JumpPower=aU.jumppower
+else
+a0.JumpHeight=aU.jumpheight
+end
+aV=false
+aW=false
+end
+
+local a6=ac.force_stuck
+if type(a6)=="table"and a6.active then
+local a7=a0.RootPart or a_:FindFirstChild"HumanoidRootPart"
+if a7 and a0.Health>0 then
+a7.AssemblyLinearVelocity=Vector3.new(0,0,0)
+end
+end
+end)
+
+local aY
+
+
+local function get_aimbot_color()
+local aZ=ac.aimbot_fov_color
+if type(aZ)=="table"and aZ.Color then
+return aZ.Color
+elseif typeof(aZ)=="Color3"then
+return aZ
+end
+return y(255,255,255)
+end
+
+local function get_aimbot_hit_part(aZ)
+local a_=ac.aimbot_hitbox or"body"
+if a_=="head"and aZ:FindFirstChild"Head"then
+return aZ.Head
+end
+return aZ:FindFirstChild"HumanoidRootPart"
+end
+
+local function is_valid_aimbot_target(aZ)
+if aZ==G then
+return false
+end
+
+if not aZ.Character or not aZ.Character.Parent then
+return false
+end
+
+local a_=aZ.Character:FindFirstChildOfClass"Humanoid"
+if not a_ or a_.Health<=0 then
+return false
+end
+
+local a0=aZ.Character:FindFirstChild"HumanoidRootPart"
+if not a0 then
+return false
+end
+
+local a1=G.Team
+if a1 and aZ.Team==a1 then
+return ao==true
+end
+
+return true
+end
+
+local function get_closest_aimbot_target()
+local aZ
+local a_=math.huge
+local a0=get_effective_aimbot_fov()
+local a1=ac.aimbot_max_distance or 0
+local a2=Vector2.new(F.ViewportSize.X/2,F.ViewportSize.Y/2)
+
+for a3,a4 in ipairs(b:GetPlayers())do
+if is_valid_aimbot_target(a4)and a4.Character then
+local a5=get_aimbot_hit_part(a4.Character)
+if a5 then
+local a6=a4.Character:FindFirstChild"HumanoidRootPart"
+if a6 then
+local a7=(a6.Position-F.CFrame.Position).Magnitude
+if a1>0 and a7>a1 then
+continue
+end
+
+local a8,a9=F:WorldToScreenPoint(a5.Position)
+if not a9 then
+continue
+end
+
+local ba=f:GetGuiInset()
+a8=Vector2.new(a8.X+ba.X,a8.Y+ba.Y)
+
+local bb=(a8-a2).Magnitude
+if bb<=a0 and bb<a_ then
+a_=bb
+aZ=a4
+end
+end
+end
+end
+end
+
+return aZ
+end
+
+local function update_aimbot_circle()
+local aZ=ac.aimbot_fov_circle or"off"
+
+if aZ=="circle"then
+if not aY then
+aY=Drawing.new"Circle"
+aY.Thickness=1
+aY.NumSides=64
+aY.Filled=false
+aY.Transparency=1
+end
+
+aY.Visible=true
+aY.Position=Vector2.new(F.ViewportSize.X/2,F.ViewportSize.Y/2)
+aY.Radius=get_effective_aimbot_fov()
+aY.Color=get_aimbot_color()
+else
+if aY then
+aY:Remove()
+aY=nil
+end
+end
+end
+
+local function is_aim_key_active()
+local aZ=ac.aim_key
+return aZ and aZ.active
+end
+
+
+
+
+
+
+
+
+
+if ac.aimbot_enabled==nil then ac.aimbot_enabled=false end
+if ac.aimbot_silent==nil then ac.aimbot_silent=false end
+if ac.aimbot_target_team==nil then ac.aimbot_target_team=false end
+if ac.aimbot_fov==nil then ac.aimbot_fov=40 end
+if ac.aimbot_max_distance==nil then ac.aimbot_max_distance=0 end
+if ac.aimbot_smooth==nil then ac.aimbot_smooth=10 end
+if ac.aimbot_fov_circle==nil then ac.aimbot_fov_circle="circle"end
+if ac.no_spread==nil then ac.no_spread=false end
+if ac.no_sway==nil then ac.no_sway=false end
+if ac.recoil_mult==nil then ac.recoil_mult=1 end
+if ac.tracer_enabled==nil then ac.tracer_enabled=false end
+if ac.tracer_color==nil then ac.tracer_color={Color=y(255,200,60)}end
+if ac.tracer_lifetime==nil then ac.tracer_lifetime=0.5 end
+
+
+
+local aZ=false
+local function ensure_weapon_mod_hooks()
+if aZ then
+return
+end
+
+local a_=game.Players.LocalPlayer:WaitForChild"PlayerScripts"
+local a0,a1=pcall(require,a_:WaitForChild"BallisticsClient":WaitForChild"ClientFire")
+if not a0 or type(a1)~="table"or type(a1.fireVolley)~="function"then
+return
+end
+
+local a2=a1.fireVolley
+
+
+
+
+
+
+
+
+
+
+
+local a3=false
+local a4={}
+local a5={}
+
+local a6=24
+local a7=0.4
+local a8=0.2
+local a9=30
+
+
+
+
+
+local ba={
+none=nil,
+tf2="138901307926331",
+minecraft="15181891182",switch=
+"5447626464",
+neverlose="6607204501",
+rust="5043539486",
+}
+
+if ac.hitsound==nil then
+ac.hitsound="none"
+end
+
+local bb
+
+local function play_hitsound()
+local bc=ba[ac.hitsound]
+
+if not bc then
+return
+end
+
+if not bb then
+bb=Instance.new"Sound"
+bb.Name="PrivHitsound"
+bb.Volume=2
+bb.Parent=m
+end
+
+local bd="rbxassetid://"..bc
+
+if bb.SoundId~=bd then
+bb.SoundId=bd
+end
+
+pcall(function()
+m:PlayLocalSound(bb)
+end)
+end
+
+local function on_victim_hit(bc)
+if not bc or bc==game.Players.LocalPlayer.Character then
+return
+end
+
+if not bc:FindFirstChildWhichIsA"Humanoid"then
+return
+end
+
+play_hitsound()
+end
+
+local function hook_shot_hits(bc)
+if not bc then
+return
+end
+
+for bd=1,#bc do
+local be=bc[bd]
+
+if type(be)=="table"and type(be.proj)=="table"then
+local bf=be.proj
+local bg=bf.OnImpact
+
+bf.OnImpact=function(bh)
+if type(bh)=="table"and bh.Instance then
+on_victim_hit(bh.Instance:FindFirstAncestorOfClass"Model")
+end
+
+if bg then
+bg(bh)
+end
+end
+end
+end
+end
+
+local bc,bd=pcall(require,game:GetService"ReplicatedStorage".Shared.Ballistics:WaitForChild"Trajectory")
+
+local function create_live_tracer(be,bf,bg,bh,bi)
+local bj=ac.tracer_color
+local bk=typeof(bj)=="table"and bj.Color or y(255,255,255)
+
+local bl=bf._arc
+local bm=bh or((bl and bl.Traj and type(bl.Traj)=="table")and bl.Traj or nil)
+
+if not bm then
+return
+end
+
+
+local bn=bm.Origin
+local bo={}
+local bp={}
+local bq={}
+local br={}
+
+for bs=1,a6 do
+local bt=Instance.new"Attachment"
+local bu=Instance.new"Attachment"
+
+bt.Parent=c.Terrain
+bu.Parent=c.Terrain
+bt.Position=bn
+bu.Position=bn
+
+local bv=Instance.new"Beam"
+
+bv.Attachment0=bt
+bv.Attachment1=bu
+bv.Color=B(bk)
+bv.Transparency=D(0)
+bv.Width0=a8
+bv.Width1=a8
+bv.LightEmission=1
+bv.LightInfluence=0
+bv.FaceCamera=true
+bv.Segments=1
+bv.Parent=bt
+
+local bw=a9+a7+5
+k:AddItem(bv,bw)
+k:AddItem(bt,bw)
+k:AddItem(bu,bw)
+
+bo[#bo+1]=bv
+bo[#bo+1]=bt
+bo[#bo+1]=bu
+bp[#bp+1]=bv
+bq[#bq+1]=bt
+br[#br+1]=bu
+end
+
+local bs={
+id=be,
+born=bg,
+proj=bf,
+traj=bm,
+elapsed=bh and(bi or 0)or 0,
+fallback=bh~=nil,
+beams=bp,
+instances=bo,
+live={
+att0s=bq,
+att1s=br,
+},
+}
+
+a4[#a4+1]=bs
+a5[be]=bs
+end
+
+local function update_tracers()
+local be=os.clock()
+
+for bf=#a4,1,-1 do
+local bg=a4[bf]
+
+
+
+if bg.live then
+local bh=bg.proj
+
+if not bh or not bh.Alive then
+bg.live=nil
+
+
+
+
+
+
+
+
+if bh then
+local bi=type(bh.Speed)=="number"and bh.Speed or 0
+local bj=type(bh.Distance)=="number"and bh.Distance or 0
+
+if bi>1 and bj>0 then
+bg.elapsed=math.max(bg.elapsed,bj/bi)
+end
+end
+elseif not bg.fallback then
+local bi=bh._arc
+
+if bi and bi.Traj and type(bi.Traj)=="table"and type(bi.Elapsed)=="number"then
+bg.traj=bi.Traj
+bg.elapsed=math.max(bg.elapsed,bi.Elapsed)
+end
+end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+if ac.tracer_enabled and bg.traj and bg.elapsed>0 then
+local bh=bg.elapsed/a6
+
+for bi=1,a6 do
+local bj,bk=pcall(bd.GetPositionAtTime,bg.traj,bh*(bi-1))
+local bl,bm=pcall(bd.GetPositionAtTime,bg.traj,bh*bi)
+
+if bj and bl then
+bg.live.att0s[bi].Position=bk
+bg.live.att1s[bi].Position=bm
+end
+end
+end
+
+
+
+local bh=math.max(tonumber(ac.tracer_lifetime)or 3,0.1)
+local bi=be-bg.born
+
+if bi>=bh+a7 then
+for bj,bk in ipairs(bg.instances)do
+pcall(function()
+bk:Destroy()
+end)
+end
+
+table.remove(a4,bf)
+a5[bg.id]=nil
+elseif bi>=bh then
+local bj=L((bi-bh)/a7,1)
+
+for bk,bl in ipairs(bg.beams)do
+if bl.Parent then
+bl.Transparency=D(bj)
+end
+end
+end
+end
+end
+
+local function register_shot_projectiles(be,bf,bg,bh)
+if not ac.tracer_enabled or not be then
+return
+end
+
+if not bc or type(bd)~="table"or type(bd.GetPositionAtTime)~="function"then
+return
+end
+
+local bi=os.clock()
+
+for bj=1,#be do
+local bk=be[bj]
+
+
+
+
+if type(bk)=="table"and type(bk.proj)=="table"and not a5[bk.proj]then
+local bl=bk.proj
+local bm=bl._arc
+
+
+
+
+
+local bn
+local bo=0
+local bp=bh and bh>0
+
+
+
+
+
+if bp or not(bm and bm.Traj and type(bm.Traj)=="table")then
+local bq=bg and bg[bj]
+local br=bl.Weapon
+local bs=(br and br.MuzzleSpeed)or 0
+local bt=(br and br.Gravity)or workspace.Gravity
+
+if bf and type(bq)=="Vector3"and bs and bs>0 then
+bn={
+Origin=bf,
+Dir=bq.Unit,
+Up=Vector3.new(0,1,0),
+MuzzleSpeed=bs,
+Decay=0,
+Gravity=bt,
+}
+bo=(bh and bh>0 and bh)or 0.08
+end
+end
+
+create_live_tracer(bl,bl,bi,bn,bo)
+end
+end
+end
+
+local function ensure_tracer_loop()
+if a3 then
+return
+end
+
+a3=true
+
+h.Heartbeat:Connect(function()
+if not ac.tracer_enabled then
+for be,bf in ipairs(a4)do
+for bg,bh in ipairs(bf.instances)do
+pcall(function()
+bh:Destroy()
+end)
+end
+end
+
+a4={}
+a5={}
+
+return
+end
+
+local be,bf=pcall(update_tracers)
+
+if not be then
+local bg=0
+
+for bh in pairs(a4)do
+bg=bg+1
+end
+
+if bg<=5 then
+print("[priv] tracer error:",bf)
+end
+end
+end)
+end
+
+
+
+
+
+
+local be,bf=pcall(require,a_:WaitForChild"BallisticsClient":WaitForChild"Tracer":WaitForChild"TracerPool")
+if be and type(bf)=="table"and type(bf.update)=="function"then
+local bg=bf.update
+
+bf.update=function(bh,bi,bj,bk)
+if bh and bh.Weapon and bh.Weapon.ProjectileModel then
+return bg(bh,bi,bj,bk)
+end
+end
+
+local bh=c:FindFirstChild"Ignore"
+
+
+
+
+
+
+
+local function sweep_streaks()
+if not bh then
+return
+end
+
+local bi=bh:FindFirstChild"Tracers"
+
+if not bi then
+return
+end
+
+for bj,bk in ipairs(bi:GetDescendants())do
+if bk:IsA"BasePart"and bk.Material==Enum.Material.Neon then
+pcall(function()
+bk:Destroy()
+end)
+end
+end
+end
+
+sweep_streaks()
+
+
+
+task.spawn(function()
+while true do
+task.wait(1)
+pcall(sweep_streaks)
+end
+end)
+end
+
+
+
+a1.fireVolley=function(bg,bh,bi,bj,bk,bl)
+local bm=getgenv().silent_aim_lock
+local bn=game.Players.LocalPlayer.Character
+local bo=bg==nil or(bn and bg.Parent==bn)
+local bp=bk and#bk>0
+local bq=bm and bm.part and bm.part.Parent and bp
+and bo and tick()<bm.expiry
+
+
+local br=0
+
+if bq then
+local bs=bm.part.Position
+
+
+
+
+local bt=0.4
+local bu=bm.muzzleSpeed or 700
+local bv=bm.gravity or workspace.Gravity
+local bw=bm.part.AssemblyLinearVelocity or Vector3.new()
+
+
+
+
+
+local bx=bs
+
+for by=1,2 do
+local bz=(bx-bj).Magnitude
+local bA=bz/math.max(bu,1)
+bx=bs+bw*bA
+end
+
+local by=bx-bj
+local bz=by.Magnitude
+local bA=by*Vector3.new(1,0,1)
+local bB=bA.Magnitude
+
+if bB<1e-3 then
+bB=1e-3
+end
+
+bA=bA/bB
+local bC=by.Y
+
+
+
+br=bz/math.max(bu,1)
+
+
+
+
+local bD=(bv*bB*bB)/(2*bu*bu)
+local bE=bB*bB-4*bD*(bC+bD)
+local bF=0
+
+if bE>=0 and bD>1e-9 then
+bF=(bB-math.sqrt(bE))/(2*bD)
+end
+
+if bF~=bF or math.abs(bF)>10 then
+
+bF=bC/bB
+end
+
+
+local bG=math.sqrt(1+bF*bF)
+local bH=bA/bG+Vector3.new(0,bF/bG,0)
+
+
+
+
+
+local bI=math.rad(ac.no_spread and 0 or bt)
+
+for bJ=1,#bk do
+local bK=math.random()*2-1
+local bL=math.random()*2-1
+local bM=math.random()*2-1
+local bN=bH+Vector3.new(bK,bL,bM)*math.tan(bI)
+bk[bJ]=bN.Unit
+end
+end
+
+local bs=a2(bg,bh,bi,bj,bk,bl)
+
+register_shot_projectiles(bs,bj,bk,br)
+
+hook_shot_hits(bs)
+
+return bs
+end
+
+
+
+
+
+
+
+local bg,bh=pcall(require,game:GetService"ReplicatedStorage".Client.Tools.Weapon.Muzzle:WaitForChild"Shooter")
+if bg and type(bh)=="table"and type(bh.fire)=="function"then
+local bi=bh.fire
+
+bh.fire=function(bj,bk)
+local bl=bj and bj.config
+local bm=bl and bl.BulletSettings and bl.BulletSettings[bk]
+local bn=ac.no_spread and bm~=nil
+
+if bn then
+local bo=bm.Spread
+bm.Spread=0
+
+local bp,bq=pcall(bi,bj,bk)
+
+bm.Spread=bo
+
+if not bp then
+error(bq,0)
+end
+
+return bq
+end
+
+return bi(bj,bk)
+end
+end
+
+
+
+local bi,bj=pcall(require,game:GetService"ReplicatedStorage".Client.Tools.Weapon.controllers:WaitForChild"RecoilController")
+if bi and type(bj)=="table"and type(bj.getRecoilMult)=="function"then
+local bk=bj.getRecoilMult
+
+bj.getRecoilMult=function(...)
+local bl=bk(...)
+
+if typeof(bl)=="number"then
+bl=bl*(ac.recoil_mult or 1)
+end
+
+return bl
+end
+end
+
+
+
+
+
+local bk,bl=pcall(require,game:GetService"ReplicatedStorage".Client:WaitForChild"Spring")
+if bk and type(bl)=="table"and type(bl.create)=="function"then
+local bm=bl.create
+
+local function is_sway_spring(bn)
+return bn.Mass==2 and bn.Force==80 and bn.Damping==10 and bn.Speed==2
+end
+
+bl.create=function(...)
+local bn=bm(...)
+local bo=bn.update
+
+bn.update=function(bp,bq)
+if ac.no_sway and is_sway_spring(bp)then
+bp.Target=Vector3.new()
+bp.Position=Vector3.new()
+bp.Velocity=Vector3.new()
+return bp.Position
+end
+return bo(bp,bq)
+end
+
+return bn
+end
+end
+
+ensure_tracer_loop()
+
+aZ=true
+end
+
+
+
+local a_
+local a0=700
+local function resolve_weapon_stats()
+local a1=G.Character
+if not a1 then
+return a0
+end
+
+local a2=a1:FindFirstChildOfClass"Tool"
+if not a2 then
+return a0
+end
+
+if a2==a_ then
+return a0
+end
+
+a_=a2
+local a3,a4=pcall(require,game:GetService"ReplicatedStorage".Shared:WaitForChild"WeaponConfigManager")
+if a3 and type(a4)=="table"and type(a4.GetAllMuzzlesConfig)=="function"then
+local a5=a4:GetAllMuzzlesConfig(a2.Name)
+local a6=a5 and a5[1]
+if a6 and a6.BulletSettings and a6.BulletSettings[1]and a6.BulletSettings[1].MuzzleVelocity then
+a0=a6.BulletSettings[1].MuzzleVelocity
+end
+end
+
+return a0
+end
+
+local function publish_aim_lock(a1)
+if not a1 or not a1.Parent then
+getgenv().silent_aim_lock=nil
+return
+end
+
+local a2=F.CFrame.Position
+local a3=(a1.Position-a2).Magnitude
+local a4=resolve_weapon_stats()
+ensure_weapon_mod_hooks()
+
+getgenv().silent_aim_lock={
+part=a1,
+expiry=tick()+0.2,
+muzzleSpeed=a4,
+gravity=workspace.Gravity,
+flightTime=a3/math.max(a4,1),
+}
+end
+if ac.aimbot_fov_color==nil then ac.aimbot_fov_color={Color=y(255,255,255)}end
+
+h:BindToRenderStep("PrivAimbot",Enum.RenderPriority.Character.Value,function()
+update_aimbot_circle()
+
+
+
+ensure_weapon_mod_hooks()
+
+local a1=false
+local a2=false
+
+if am and is_aim_key_active()then
+local a3=get_closest_aimbot_target()
+if a3 and a3.Character then
+local a4=get_aimbot_hit_part(a3.Character)
+
+
+
+
+if an then
+if a4 then
+publish_aim_lock(a4)
+a2=true
+end
+elseif a4 then
+local a5=F.CFrame
+local a6=a5.Position
+local a7=a4.Position
+
+local a8=CFrame.lookAt(a6,a7,a5.UpVector)
+
+local a9=ac.aimbot_smooth or 0
+local ba=a9<=0 and 1 or math.clamp(1/(a9+1),0.01,1)
+F.CFrame=F.CFrame:Lerp(a8,ba)
+
+if _:IsActive()then
+_:SetOverride(F.CFrame)
+end
+
+a1=true
+end
+end
+end
+
+if not a1 then
+_:ClearOverride()
+end
+
+
+
+if not a2 then
+publish_aim_lock(nil)
+end
+end)
+
+task.spawn(function()
+task.wait(1)
+ag:create_notification{name="welcome "..string.lower(game.Players.LocalPlayer.Name).."!"}
+end)
+
+local a1={
+
+{"Head","UpperTorso"},
+{"UpperTorso","LowerTorso"},
+{"UpperTorso","LeftUpperArm"},
+{"UpperTorso","RightUpperArm"},
+{"LeftUpperArm","LeftLowerArm"},
+{"RightUpperArm","RightLowerArm"},
+{"LeftLowerArm","LeftHand"},
+{"RightLowerArm","RightHand"},
+{"LowerTorso","LeftUpperLeg"},
+{"LowerTorso","RightUpperLeg"},
+{"LeftUpperLeg","LeftLowerLeg"},
+{"RightUpperLeg","RightLowerLeg"},
+{"LeftLowerLeg","LeftFoot"},
+{"RightLowerLeg","RightFoot"},
+
+}
+
+ac.Health_High=ac.Health_High or{Color=y(0,255,0)}
+ac.Health_Low=ac.Health_Low or{Color=y(255,0,0)}
+ac.Box_Type=ac.Box_Type or"Normal"
+if ac.Boxes==nil then ac.Boxes=true end
+if ac.Names==nil then ac.Names=true end
+if ac.Distance==nil then ac.Distance=true end
+if ac.Weapon==nil then ac.Weapon=true end
+if ac.Skeletons==nil then ac.Skeletons=true end
+if ac.player_flags==nil then ac.player_flags=false end
+if ac.player_local==nil then ac.player_local=true end
+if ac.player_teammates==nil then ac.player_teammates=false end
+if ac.player_max_distance==nil then ac.player_max_distance=0 end
+
+if ac.chams_enabled==nil then ac.chams_enabled=false end
+ac.chams_occluded=ac.chams_occluded or{Color=y(7,255,49),Transparency=0.12}
+ac.chams_visible=ac.chams_visible or{Color=y(255,0,0),Transparency=0}
+if ac.player_offscreen==nil then ac.player_offscreen=false end
+ac.player_offscreen_color=ac.player_offscreen_color or{Color=y(255,255,255),Transparency=0}
+
+local a2={};do
+local a3=Register_Font("TahomaBold",700,"Normal",{
+Id="TahomaBold.ttf",
+Font=game:HttpGet"https://github.com/i77lhm/storage/raw/refs/heads/main/fonts/tahoma_bold.ttf",
+})
+
+local a4=Register_Font("SmallestPixel",400,"Normal",{
+Id="SmallestPixel.ttf",
+Font=game:HttpGet"https://github.com/i77lhm/storage/raw/refs/heads/main/fonts/smallest_pixel-7.ttf",
+})
+
+local a5=Register_Font("RuneScape",400,"Normal",{
+Id="RuneScape.ttf",
+Font=game:HttpGet"https://static.wfonts.com/download/data/2014/06/09/runescape-uf/runescape_uf.ttf",
+})
+
+a2={
+main=Font.new(a3,Enum.FontWeight.Regular,Enum.FontStyle.Normal);
+secondary=Font.new(a4,Enum.FontWeight.Regular,Enum.FontStyle.Normal);
+runescape=Font.new(a5,Enum.FontWeight.Regular,Enum.FontStyle.Normal);
+}
+end
+
+local a3={
+["tahoma B"]={font=a2.main,textsize=12},osrs=
+{font=a2.runescape,textsize=16},
+}
+
+do
+local a4=aG.name_misc
+if a4 and a4.center then
+local a5=a4.center
+a5:dropdown{
+name="name",
+flag="name_esp_font",
+items={"tahoma B","osrs"},
+default="tahoma B",
+callback=function(a6)
+local a7=a3[a6]
+if not a7 or not al then return end
+for a8,a9 in pairs(al)do
+if type(a9)=="table"and a9.objects and a9.objects.name then
+a9.objects.name.FontFace=a7.font
+a9.objects.name.TextSize=a7.textsize
+end
+end
+end,
+}
+end
+end
+
+al={players={},screengui=Instance.new("ScreenGui",gethui()),cache=Instance.new("ScreenGui",gethui()),connections={}};do
+al.screengui.IgnoreGuiInset=true
+al.screengui.DisplayOrder=-1E3
+al.screengui.Name="\0"
+
+al.cache.Enabled=false
+
+local a4=math.sqrt
+local a5=math.round
+
+local a6,a7,a8=0,0,0
+local a9,ba,bb=1,0,0
+local bd,be,bf=0,1,0
+local bg,bh,bi=0,0,-1
+local bj=1
+local bk,bl=0,0
+local bm,bn=1,1
+local bo=false
+
+local function esp_hide_arrow(bp)
+if not bp then return end
+local bq=bp.arrow
+local br=bp.arrow_outline
+if bq and bq.Visible then bq.Visible=false end
+if br and br.Visible then br.Visible=false end
+end
+
+local function esp_offscreen_arrow(bp,bq,br,bs)
+local bt=bp and bp.arrow
+if not bt then
+return
+end
+
+local bu=bp.arrow_outline
+
+local bv=ac.player_offscreen
+and not(ak.main_outline and ak.main_outline.Visible)
+
+if not bv or not bo then
+esp_hide_arrow(bp)
+return
+end
+
+local bw=bq-a6
+local bx=br-a7
+local by=bs-a8
+
+local bz=bw*bg+bx*bh+by*bi
+local bA=bw*a9+bx*ba+by*bb
+local bB=bw*bd+bx*be+by*bf
+
+if bz<=0 then
+bA,bB=-bA,-bB
+bz=1
+end
+
+local bC=1/bz
+local bD=bA*bj*bC
+local bE=-bB*bj*bC
+
+local bF=a4(bD*bD+bE*bE)
+if bF<0.001 then
+esp_hide_arrow(bp)
+return
+end
+
+local bG=bD/bF
+local bH=bE/bF
+
+local bI=80
+local bJ=bm*0.5-bI
+local bK=bn*0.5-bI
+
+local bL=1e9
+if bG>0 then
+bL=L(bL,bJ/bG)
+elseif bG<0 then
+bL=L(bL,-bJ/bG)
+end
+
+if bH>0 then
+bL=L(bL,bK/bH)
+elseif bH<0 then
+bL=L(bL,-bK/bH)
+end
+
+local bM=bk+bG*bL
+local bN=bl+bH*bL
+
+local bO=U(bG,-bH)
+local bP=math.cos(bO)
+local bQ=math.sin(bO)
+
+local bR=ac.player_offscreen_color
+local bS=bR and bR.Color or y(255,255,255)
+local bT=bR and(bR.Transparency or 0)or 0
+
+local bU=6
+
+local function point(bV,bW)
+return n(bM+bV*bP-bW*bQ,bN+bV*bQ+bW*bP)
+end
+
+if bu then
+local bV=bU+2
+local bW=bV*0.5
+bu.PointA=point(0,-bV)
+bu.PointB=point(-bW,bW)
+bu.PointC=point(bW,bW)
+bu.Color=y(0,0,0)
+bu.Transparency=bT
+bu.Visible=true
+end
+
+local bV=bU*0.5
+bt.PointA=point(0,-bU)
+bt.PointB=point(-bV,bV)
+bt.PointC=point(bV,bV)
+bt.Color=bS
+bt.Transparency=bT
+bt.Visible=true
+end
+
+local function begin_frame()
+local bp=F
+if not bp then
+bo=false
+return
+end
+
+local bq=bp.CFrame
+local br=bq.Position
+local bs=bq.RightVector
+local bt=bq.UpVector
+local bu=bq.LookVector
+local bv=bp.ViewportSize
+
+a6,a7,a8=br.x,br.y,br.z
+a9,ba,bb=bs.x,bs.y,bs.z
+bd,be,bf=bt.x,bt.y,bt.z
+bg,bh,bi=bu.x,bu.y,bu.z
+bm,bn=bv.x,bv.y
+bk,bl=bv.x*0.5,bv.y*0.5
+
+local bw=aO or bp.FieldOfView
+if type(bw)~="number"or bw<=0 or bw>=180 then
+bw=70
+end
+bj=bl/T(O(bw*0.5))
+bo=true
+end
+
+local function project(bp,bq,br)
+if not bo then
+return nil
+end
+
+local bs=bp-a6
+local bt=bq-a7
+local bu=br-a8
+
+local bv=bs*bg+bt*bh+bu*bi
+if bv<=0 then
+return nil
+end
+
+local bw=bs*a9+bt*ba+bu*bb
+local bx=bs*bd+bt*be+bu*bf
+
+local by=1/bv
+local bz=bk+bw*bj*by
+local bA=bl-bx*bj*by
+
+return bz,bA,bv
+end
+
+function al.get_screen_pos(bp,bq)
+if not F then
+return Vector3.new(-99999,-99999,0),false
+end
+
+local br=F.ViewportSize
+if br.x<=0 or br.y<=0 then
+return Vector3.new(-99999,-99999,0),false
+end
+
+local bs=F.CFrame:pointToObjectSpace(bq)
+if-bs.z<=0 then
+return Vector3.new(-99999,-99999,0),false
+end
+
+local bt=aO or F.FieldOfView
+if type(bt)~="number"or bt<=0 or bt>=180 then
+bt=70
+end
+
+local bu=br.x/br.y
+local bv=-bs.z*math.tan(math.rad(bt/2))
+local bw=bu*bv
+
+local bx=Vector3.new(-bw,bv,bs.z)
+local by=bs-bx
+
+local bz=by.x/(bw*2)
+local bA=-by.y/(bv*2)
+
+local bB=bz>=0 and bz<=1 and bA>=0 and bA<=1
+
+return Vector3.new(bz*br.x,bA*br.y,-bs.z),bB
+end
+
+function al.box_solve(bp,bq,br)
+if not bq then
+return nil,nil,nil
+end
+
+if not bo then
+local bs=bq.Position+(bq.CFrame.UpVector*1.8)+F.CFrame.UpVector
+local bt=bq.Position-(bq.CFrame.UpVector*2.5)-F.CFrame.UpVector
+br=br or(bq.Position-F.CFrame.p).Magnitude
+
+local bu,bv=al:get_screen_pos(bs)
+local bw=al:get_screen_pos(bt)
+
+local bx=math.max(math.floor(math.abs(bu.X-bw.X)),3)
+local by=math.max(math.floor(math.max(math.abs(bw.Y-bu.Y),bx/2)),3)
+local bz=Vector2.new(math.floor(math.max(by/1.5,bx)),by)
+local bA=Vector2.new(math.floor(bu.X*0.5+bw.X*0.5-bz.X*0.5),math.floor(math.min(bu.Y,bw.Y)))
+
+return bz,bA,bv,br
+end
+
+local bs=bq.Position
+local bt,bu,bv=bs.x,bs.y,bs.z
+local bw=bq.CFrame.UpVector
+local bx,by,bz=bw.x,bw.y,bw.z
+
+br=br or a4((bt-a6)*(bt-a6)+(bu-a7)*(bu-a7)+(bv-a8)*(bv-a8))
+
+local bA,bB=project(bt+bx*1.8+bd,bu+by*1.8+be,bv+bz*1.8+bf)
+local bC,bD=project(bt-bx*2.5-bd,bu-by*2.5-be,bv-bz*2.5-bf)
+
+if not bA then
+bA,bB=-99999,-99999
+end
+if not bC then
+bC,bD=-99999,-99999
+end
+
+local bE=bA>=0 and bA<=bm and bB>=0 and bB<=bn
+
+local bF=J(K(M(bA-bC)),3)
+local bG=J(K(J(M(bD-bB),bF/2)),3)
+local bH=n(K(J(bG/1.5,bF)),bG)
+local bI=n(K(bA*0.5+bC*0.5-bH.X*0.5),K(L(bB,bD)))
+
+return bH,bI,bE,br
+
+end
+
+function al.create(bp,bq,br)
+local bs=Instance.new(bq)
+
+for bt,bu in br do
+bs[bt]=bu
+end
+
+return bs
+end
+
+function al.create_object(bp,bq)
+al[bq.Name]={
+objects={},
+info={
+character=nil,
+humanoid=nil,
+rootpart=nil,
+bones=nil,
+tool=nil,
+invisible=false,
+flag_checked=0,
+},
+refresh_pending=false,
+refresh_retry_at=0,
+drawings={},
+connections={},
+player_connections={},
+}
+local br=al[bq.Name]
+
+local bs=br.objects;do
+bs.holder=al:create("Frame",{
+Parent=al.screengui;
+Name="\0";
+BackgroundTransparency=1;
+Position=p(0,0,0,0);
+BorderColor3=y(0,0,0);
+Size=p(0,0,0,0);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+bs.box_outline=al:create("UIStroke",{
+Parent=(ac.Boxes and ac.Box_Type~="Corner"and bs.holder)or al.cache;
+LineJoinMode=Enum.LineJoinMode.Miter
+});
+
+bs.name=al:create("TextLabel",{
+FontFace=(a3[ac.name_esp_font]or a3["tahoma B"]).font;
+Parent=bs.holder;
+TextColor3=ac.Name_Color.Color;
+BorderColor3=y(0,0,0);
+Text=bq.Name;
+Name="\0";
+TextStrokeTransparency=0;
+AnchorPoint=n(0.5,1);
+Size=p(1,0,0,0);
+BackgroundTransparency=1;
+Position=p(0.5,0,0,-4);
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.Y;
+TextSize=(a3[ac.name_esp_font]or a3["tahoma B"]).textsize;
+});
+
+bs.box_handler=al:create("Frame",{
+Parent=(ac.Boxes and ac.Box_Type~="Corner"and bs.holder)or al.cache;
+Name="\0";
+BackgroundTransparency=1;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+bs.box_color=al:create("UIStroke",{
+Color=ac.Box_Color and ac.Box_Color.Color or y(255,255,255);
+LineJoinMode=Enum.LineJoinMode.Miter;
+Name="\0";
+Parent=bs.box_handler
+});
+
+bs.outline=al:create("Frame",{
+Parent=bs.box_handler;
+Name="\0";
+BackgroundTransparency=1;
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+bs.outline_stroke=al:create("UIStroke",{
+Parent=bs.outline;
+LineJoinMode=Enum.LineJoinMode.Miter;
+Transparency=0;
+});
+
+bs.corners=al:create("Frame",{
+Visible=true;
+BorderColor3=y(0,0,0);
+Parent=ac.Boxes and ac.Box_Type=="Corner"and bs.holder or al.cache;
+BackgroundTransparency=1;
+Position=p(0,-1,0,2);
+Name="\0";
+Size=p(1,0,1,0);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+bs["1"]=al:create("Frame",{
+Parent=bs.corners;
+Name="line";
+Position=p(0,0,0,-2);
+BorderColor3=y(0,0,0);
+Size=p(0.4,0,0,3);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});
+
+al:create("Frame",{
+Parent=bs["1"];
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=ac.Box_Color.Color
+});
+
+bs["2"]=al:create("Frame",{
+Parent=bs.corners;
+Name="line";
+Position=p(0,0,0,1);
+BorderColor3=y(0,0,0);
+Size=p(0,3,0.25,0);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});
+
+al:create("Frame",{
+Parent=bs["2"];
+Position=p(0,1,0,-2);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,1);
+BorderSizePixel=0;
+BackgroundColor3=ac.Box_Color.Color
+});
+
+bs["3"]=al:create("Frame",{
+AnchorPoint=n(1,0);
+Parent=bs.corners;
+Name="line";
+Position=p(1,0,0,-2);
+BorderColor3=y(0,0,0);
+Size=p(0.4,0,0,3);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});
+
+al:create("Frame",{
+Parent=bs["3"];
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=ac.Box_Color.Color
+});
+
+bs["4"]=al:create("Frame",{
+AnchorPoint=n(1,0);
+Parent=bs.corners;
+Name="line";
+Position=p(1,0,0,1);
+BorderColor3=y(0,0,0);
+Size=p(0,3,0.25,0);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});
+
+al:create("Frame",{
+Parent=bs["4"];
+Position=p(0,1,0,-2);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,1);
+BorderSizePixel=0;
+BackgroundColor3=ac.Box_Color.Color
+});
+
+bs["5"]=al:create("Frame",{
+AnchorPoint=n(0,1);
+Parent=bs.corners;
+Name="line";
+Position=p(0,0,1,-2);
+BorderColor3=y(0,0,0);
+Size=p(0.4,0,0,3);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});
+
+al:create("Frame",{
+Parent=bs["5"];
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=ac.Box_Color.Color
+});
+
+bs["6"]=al:create("Frame",{
+BorderColor3=y(0,0,0);
+Rotation=180;
+Parent=bs.corners;
+Name="line";
+Position=p(0,0,1,-5);
+AnchorPoint=n(0,1);
+Size=p(0,3,0.25,0);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});
+
+al:create("Frame",{
+Parent=bs["6"];
+Position=p(0,1,0,-2);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,1);
+BorderSizePixel=0;
+BackgroundColor3=ac.Box_Color.Color
+});
+
+bs["7"]=al:create("Frame",{
+AnchorPoint=n(1,1);
+Parent=bs.corners;
+Name="line";
+Position=p(1,0,1,-2);
+BorderColor3=y(0,0,0);
+Size=p(0.4,0,0,3);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});
+
+al:create("Frame",{
+Parent=bs["7"];
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=ac.Box_Color.Color
+});
+
+bs["7"]=al:create("Frame",{
+BorderColor3=y(0,0,0);
+Rotation=180;
+Parent=bs.corners;
+Name="line";
+Position=p(1,0,1,-5);
+AnchorPoint=n(1,1);
+Size=p(0,3,0.25,0);
+BorderSizePixel=0;
+BackgroundColor3=y(0,0,0)
+});
+
+al:create("Frame",{
+Parent=bs["7"];
+Position=p(0,1,0,-2);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,1);
+BorderSizePixel=0;
+BackgroundColor3=ac.Box_Color.Color
+});
+
+bs.healthbar_holder=al:create("Frame",{
+AnchorPoint=n(1,0);
+Parent=ac.Healthbar and bs.holder or al.cache;
+Name="\0";
+Position=p(0,-2,0,-1);
+BorderColor3=y(0,0,0);
+Size=p(0,4,1,2);
+BorderSizePixel=0;
+ClipsDescendants=true;
+BackgroundColor3=y(0,0,0)
+});
+
+bs.healthbar=al:create("Frame",{
+Parent=bs.healthbar_holder;
+Name="\0";
+Position=p(0,1,0,1);
+BorderColor3=y(0,0,0);
+Size=p(1,-2,1,-2);
+BorderSizePixel=0;
+BackgroundColor3=y(255,255,255)
+});
+
+bs.distance=al:create("TextLabel",{
+FontFace=a2.secondary;
+TextColor3=ac.Distance_Color.Color;
+BorderColor3=y(0,0,0);
+Text="38M";
+Parent=ac.Distance and bs.holder or al.cache;
+TextStrokeTransparency=1;
+Name="\0";
+Size=p(1,0,0,0);
+BackgroundTransparency=1;
+Position=p(0,0,1,8);
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.Y;
+TextSize=9;
+});
+al:create("UIStroke",{
+Parent=bs.distance;
+Color=y(0,0,0);
+LineJoinMode=Enum.LineJoinMode.Miter;
+});
+
+bs.flag=al:create("TextLabel",{
+FontFace=a2.secondary;
+TextColor3=ac.Distance_Color.Color;
+BorderColor3=y(0,0,0);
+Text="INVIS";
+Parent=ac.player_flags and bs.holder or al.cache;
+TextStrokeTransparency=1;
+Name="\0";
+AnchorPoint=n(1,0);
+Size=p(0,0,0,0);
+BackgroundTransparency=1;
+Position=p(1,25,0,2);
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.X;
+TextSize=9;
+TextXAlignment=Enum.TextXAlignment.Right;
+Visible=false;
+});
+al:create("UIStroke",{
+Parent=bs.flag;
+Color=y(0,0,0);
+LineJoinMode=Enum.LineJoinMode.Miter;
+});
+
+bs.weapon=al:create("TextLabel",{
+FontFace=a2.secondary;
+TextColor3=ac.Weapon_Color.Color;
+BorderColor3=y(0,0,0);
+Text="[ak-47]";
+Parent=al.cache;
+TextStrokeTransparency=1;
+Name="\0";
+Size=p(1,0,0,0);
+BackgroundTransparency=1;
+Position=p(0,0,1,0);
+BorderSizePixel=0;
+AutomaticSize=Enum.AutomaticSize.Y;
+TextSize=9;
+});
+al:create("UIStroke",{
+Parent=bs.weapon;
+Color=y(0,0,0);
+LineJoinMode=Enum.LineJoinMode.Miter;
+});
+
+for bt,bu in a1 do
+local bv=Drawing.new"Line"
+bv.Color=ac.Skeletons_Color.Color;
+bv.Thickness=1;
+bv.Visible=false;
+
+br.drawings[#br.drawings+1]=bv;
+end
+
+local bt=Drawing.new"Triangle"
+bt.Thickness=1
+bt.Filled=true
+bt.Color=y(255,255,255)
+bt.Transparency=0
+bt.Visible=false
+br.arrow=bt
+
+local bu=Drawing.new"Triangle"
+bu.Thickness=1
+bu.Filled=true
+bu.Color=y(0,0,0)
+bu.Transparency=0
+bu.Visible=false
+br.arrow_outline=bu
+
+end
+
+do
+br.health_changed=function(bt)
+if not ac.Healthbar then
+return
+end
+
+local bu=br.info.humanoid
+if not bu then
+return
+end
+
+local bv=math.max(bt/bu.MaxHealth,0.001)
+local bw=ac.Health_Low.Color:Lerp(ac.Health_High.Color,bv)
+
+bs.healthbar.Size=UDim2.new(1,-2,bv,-2)
+bs.healthbar.Position=UDim2.new(0,1,1-bv,1)
+bs.healthbar.BackgroundColor3=bw
+end
+
+br.refresh_bones=function()
+local bt=br.info.character
+local bu={}
+if bt then
+for bv=1,#a1 do
+local bw=a1[bv]
+local bx=bt:FindFirstChild(bw[1])
+local by=bt:FindFirstChild(bw[2])
+if bx and by then
+bu[bv]={bx,by}
+end
+end
+end
+br.info.bones=bu
+end
+
+br.tool_added=function(bt)
+if not bt:IsA"Tool"then
+return
+end
+
+local bu=br.info.character
+local bv=bu and bu:FindFirstChild(bt.Name)
+
+if bv then
+br.info.tool=bt
+bs.weapon.Text=bt.Name
+bs.weapon.Parent=bs.holder
+else
+br.info.tool=nil
+bs.weapon.Parent=al.cache
+end
+
+br.refresh_offsets()
+end
+
+br.refresh_offsets=function()
+local bt=bs.weapon.Parent==bs.holder
+
+if bt then
+bs.distance.Position=p(0,0,1,8)
+bs.weapon.Position=p(0,0,1,0)
+else
+bs.distance.Position=p(0,0,1,0)
+end
+end
+
+br.refresh_descendants=function(bt)
+
+if br.refresh_pending then
+return
+end
+
+bt=bt or bq.Character
+if not bt or not bt.Parent then
+return
+end
+
+if br.info.character==bt and br.info.humanoid and bs.highlight and bs.highlight.Parent then
+return
+end
+
+br.refresh_pending=true
+
+local bu=bt:WaitForChild("Humanoid",15)
+if not bu then
+br.refresh_pending=false
+return
+end
+
+local bv,bw=pcall(function()
+
+local bv=bt:FindFirstChild"HumanoidRootPart"
+
+for bw,bx in br.connections do
+bx:Disconnect()
+end
+br.connections={}
+
+br.info.character=bt
+br.info.humanoid=bu
+br.info.rootpart=bv
+br.info.invisible=false
+br.info.flag_checked=0
+
+if bs.highlight then
+bs.highlight:Destroy()
+bs.highlight=nil
+end
+
+if bs.adornments then
+for bw,bx in bs.adornments do
+if bx then
+if bx.inline and bx.inline.Parent then bx.inline:Destroy()end
+if bx.outline and bx.outline.Parent then bx.outline:Destroy()end
+end
+end
+end
+bs.adornments={}
+
+local bw={Torso=
+true,UpperTorso=true,LowerTorso=true,
+["Left Arm"]=true,LeftUpperArm=true,LeftLowerArm=true,LeftHand=true,
+["Right Arm"]=true,RightUpperArm=true,RightLowerArm=true,RightHand=true,
+["Left Leg"]=true,LeftUpperLeg=true,LeftLowerLeg=true,LeftFoot=true,
+["Right Leg"]=true,RightUpperLeg=true,RightLowerLeg=true,RightFoot=true,
+}
+
+local function create_cham_for_part(bx)
+if bq==b.LocalPlayer then return end
+if not bx or not bx.Parent then return end
+if bx:IsA"Accessory"or bx:IsA"LocalScript"then return end
+
+local by=bx.Name=="Head"
+local bz=bw[bx.Name]
+
+if not by and not bz then return end
+
+if bs.adornments[bx]then return end
+
+local bA=by and"CylinderHandleAdornment"or"BoxHandleAdornment"
+
+local bB=Instance.new(bA)
+bB.Name="Inline"
+bB.Color3=y(255,255,255)
+bB.Transparency=0.75
+bB.ZIndex=2
+bB.AlwaysOnTop=true
+bB.AdornCullingMode="Never"
+bB.Visible=false
+bB.Adornee=bx
+
+local bC=Instance.new(bA)
+bC.Name="_Outline"
+bC.Color3=y(255,255,255)
+bC.Transparency=0.55
+bC.ZIndex=2
+bC.AlwaysOnTop=false
+bC.AdornCullingMode="Never"
+bC.Visible=false
+bC.Adornee=bx
+
+if bA=="CylinderHandleAdornment"then
+bB.Radius=bx.Size.X/2+0.15
+bB.Height=bx.Size.Y+0.3
+bB.CFrame=CFrame.new(Vector3.new(),Vector3.new(0,1,0))
+bC.Radius=bx.Size.X/2+0.2
+bC.Height=bx.Size.Y+0.35
+bC.CFrame=CFrame.new(Vector3.new(),Vector3.new(0,1,0))
+else
+bB.Size=bx.Size+Vector3.new(0.05,0.05,0.05)
+bC.Size=bx.Size+Vector3.new(0.1,0.1,0.1)
+end
+
+bB.Parent=al.cache
+bC.Parent=al.cache
+bs.adornments[bx]={inline=bB,outline=bC}
+end
+
+if bq~=b.LocalPlayer then
+local bx=Instance.new"Highlight"
+bx.Name="\0"
+bx.Adornee=bt
+bx.DepthMode=Enum.HighlightDepthMode.Occluded
+bx.Enabled=false
+bx.Parent=al.cache
+bs.highlight=bx
+
+for by,bz in bt:GetChildren()do
+create_cham_for_part(bz)
+end
+end
+
+br.connections[#br.connections+1]=bu.HealthChanged:Connect(br.health_changed)
+br.connections[#br.connections+1]=bt.ChildAdded:Connect(function(bx)
+br.refresh_bones()
+br.tool_added(bx)
+create_cham_for_part(bx)
+end)
+br.connections[#br.connections+1]=bt.ChildRemoved:Connect(function(bx)
+br.refresh_bones()
+br.tool_added(bx)
+end)
+
+br.refresh_bones()
+
+local bx=bt:FindFirstChildOfClass"Tool"
+if bx then
+br.tool_added(bx)
+else
+br.info.tool=nil
+bs.weapon.Parent=al.cache
+br.refresh_offsets()
+end
+
+br.health_changed(br.info.humanoid.Health)
+al.refresh_elements()
+
+end)
+
+br.refresh_pending=false
+
+if not bv then
+if not br.warned_setup then
+br.warned_setup=true
+warn("[ESP] setup failed for "..bq.Name..": "..tostring(bw))
+end
+else
+br.warned_setup=false
+end
+end
+end
+
+do
+
+if bq.Character then
+task.spawn(br.refresh_descendants,bq.Character)
+end
+
+br.player_connections[#br.player_connections+1]=bq.CharacterAdded:Connect(function(bt)
+task.spawn(br.refresh_descendants,bt)
+end)
+
+br.player_connections[#br.player_connections+1]=bq.CharacterRemoving:Connect(function()
+
+br.info.character=nil
+br.info.humanoid=nil
+br.info.rootpart=nil
+
+if bs.holder then
+bs.holder.Visible=false
+end
+
+if bs.highlight and bs.highlight.Parent then
+bs.highlight.Enabled=false
+end
+
+if bs.adornments then
+for bt,bu in bs.adornments do
+if bu then
+if bu.inline and bu.inline.Parent then bu.inline.Visible=false end
+if bu.outline and bu.outline.Parent then bu.outline.Visible=false end
+end
+end
+end
+
+for bt,bu in br.drawings do
+bu.Visible=false
+end
+
+esp_hide_arrow(br)
+end)
+
+br.player_connections[#br.player_connections+1]=bq:GetPropertyChangedSignal"Team":Connect(function()
+if al then
+al.refresh_elements()
+end
+end)
+
+local bt=bq.Character and bq.Character:FindFirstChildOfClass"Tool"
+
+if bt then
+br.tool_added(bt)
+end
+end
+end
+
+function al.remove_object(bp,bq)
+local br=al[bq.Name]
+
+if not br then return end
+
+for bs,bt in br.connections do
+bt:Disconnect()
+end
+br.connections={}
+
+for bs,bt in br.player_connections do
+bt:Disconnect()
+end
+br.player_connections={}
+
+local bs=br.objects
+
+for bt,bu in br.drawings do
+bu:Remove()
+end
+
+if br.arrow then br.arrow:Remove()end
+if br.arrow_outline then br.arrow_outline:Remove()end
+
+if bs.highlight then
+bs.highlight:Destroy()
+end
+
+if bs.adornments then
+for bt,bu in bs.adornments do
+if bu then
+if bu.inline and bu.inline.Parent then bu.inline:Destroy()end
+if bu.outline and bu.outline.Parent then bu.outline:Destroy()end
+end
+end
+end
+
+bs.holder:Destroy()
+al[bq.Name]=nil
+end
+
+local function should_render_player(bp)
+if bp==b.LocalPlayer then
+return ac.player_local
+end
+
+local bq=b.LocalPlayer.Team
+if bq and bp.Team==bq then
+return ac.player_teammates
+end
+
+return true
+end
+
+local bp=y(31,236,66)
+
+local function esp_color(bq,br)
+if bq==b.LocalPlayer then
+return bp
+end
+
+if type(br)=="table"and br.Color then
+return br.Color
+end
+
+return br
+end
+
+local function is_character_invisible(bq)
+for br,bs in ipairs(bq:GetDescendants())do
+if bs:IsA"BasePart"then
+local bt=bs.Transparency+(bs.LocalTransparencyModifier or 0)
+if bt<1 then
+return false
+end
+end
+end
+return true
+end
+
+local function set_highlight(bq,br)
+local bs=bq and bq.objects and bq.objects.highlight
+if bs and bs.Parent and bs.Enabled~=br then
+bs.Enabled=br
+end
+end
+
+local function set_adornments(bq,br)
+if not bq or not bq.objects or not bq.objects.adornments then return end
+for bs,bt in bq.objects.adornments do
+if bt then
+if bt.inline and bt.inline.Parent then
+bt.inline.Visible=br
+end
+if bt.outline and bt.outline.Parent then
+bt.outline.Visible=br
+end
+end
+end
+end
+
+function al.refresh_elements()
+for bq,br in b:GetPlayers()do
+local bs=al[br.Name]
+
+if not bs then
+
+al:create_object(br)
+bs=al[br.Name]
+end
+
+local bt=bs and bs.objects
+
+if not bs or not bt then
+continue
+end
+
+local bu=should_render_player(br)and br.Character
+
+if not bu then
+bt.holder.Parent=al.cache
+bt.name.Parent=al.cache
+bt.corners.Parent=al.cache
+bt.box_handler.Parent=al.cache
+bt.box_outline.Parent=al.cache
+bt.healthbar_holder.Parent=al.cache
+bt.weapon.Parent=al.cache
+bt.distance.Parent=al.cache
+
+if bt.highlight and bt.highlight.Parent then
+bt.highlight.Enabled=false
+end
+
+if bt.adornments then
+for bv,bw in bt.adornments do
+if bw then
+if bw.inline and bw.inline.Parent then bw.inline.Visible=false end
+if bw.outline and bw.outline.Parent then bw.outline.Visible=false end
+end
+end
+end
+
+for bv,bw in bs.drawings do
+bw.Visible=false
+end
+
+esp_hide_arrow(bs)
+
+bs.refresh_offsets()
+continue
+end
+
+local bv=ac.Enabled and true or false
+bt.holder.Parent=bv and al.screengui or al.cache
+
+bt.name.Parent=ac.Names and bt.holder or al.cache
+bt.name.TextColor3=esp_color(br,ac.Name_Color)
+
+local bw=ac.Box_Type=="Corner"
+
+if ac.Boxes then
+bt.corners.Parent=(bw and bt.holder)or al.cache
+bt.box_handler.Parent=(bw and al.cache or bt.holder)
+bt.box_outline.Parent=(bw and al.cache or bt.holder)
+else
+bt.corners.Parent=al.cache
+bt.box_handler.Parent=al.cache
+bt.box_outline.Parent=al.cache
+end
+
+bt.box_color.Color=esp_color(br,ac.Box_Color)
+bt.outline_stroke.Transparency=0
+bt.flag.TextColor3=esp_color(br,ac.Distance_Color)
+bt.flag.Parent=ac.player_flags and bt.holder or al.cache
+
+local bx=ac.chams_enabled and true or false
+if bt.highlight and bt.highlight.Parent then
+bt.highlight.Enabled=bv and bx
+bt.highlight.DepthMode=Enum.HighlightDepthMode.Occluded
+
+local by=ac.chams_visible or{Color=y(0,0,0),Transparency=0}
+bt.highlight.FillColor=by.Color
+bt.highlight.FillTransparency=by.Transparency or 0
+bt.highlight.OutlineColor=by.Color
+bt.highlight.OutlineTransparency=by.Transparency or 0
+end
+
+if bt.adornments then
+local by=ac.chams_occluded or{Color=y(255,255,255),Transparency=0}
+local bz=ac.chams_visible or{Color=y(255,255,255),Transparency=0}
+for bA,bB in bt.adornments do
+if bB then
+if bB.inline and bB.inline.Parent then
+bB.inline.Color3=by.Color
+bB.inline.Transparency=by.Transparency or 0
+bB.inline.Visible=bv and bx
+end
+if bB.outline and bB.outline.Parent then
+bB.outline.Color3=bz.Color
+bB.outline.Transparency=bz.Transparency or 0
+bB.outline.Visible=bv and bx
+end
+end
+end
+end
+
+bt.flag.Visible=ac.player_flags and is_character_invisible(br.Character)
+
+for by,bz in bt.corners:GetChildren()do
+if bz:IsA"GuiObject"then
+bz.BackgroundColor3=esp_color(br,ac.Box_Color)
+end
+end
+
+local by=ak.main_outline and ak.main_outline.Visible
+
+for bz,bA in bs.drawings do
+bA.Color=esp_color(br,ac.Skeletons_Color)
+bA.Visible=ac.Skeletons and bv and not by
+end
+
+bt.healthbar_holder.Parent=ac.Healthbar and bt.holder or al.cache
+
+bt.weapon.TextColor3=esp_color(br,ac.Weapon_Color)
+bt.weapon.Parent=ac.Weapon and br.Character:FindFirstChildOfClass"Tool"and bt.holder or al.cache
+
+bt.distance.TextColor3=esp_color(br,ac.Distance_Color)
+bt.distance.Parent=ac.Distance and bt.holder or al.cache
+
+bs.refresh_offsets()
+end
+end
+
+al.connection=h:BindToRenderStep("PrivESP",Enum.RenderPriority.Last.Value,function()
+if not ac.Enabled then
+return
+end
+
+begin_frame()
+if not bo then
+return
+end
+
+local bq=ac.Skeletons
+local br=ac.player_flags
+local bs=ac.chams_enabled and true or false
+local bt=ac.player_max_distance or 0
+local bu=ac.Distance
+local bv=ac.Weapon
+local bw=ak.main_outline and ak.main_outline.Visible
+local bx=bq and not bw
+local by=tick()
+
+for bz,bA in b:GetPlayers()do
+
+if not al[bA.Name]then
+al:create_object(bA)
+end
+
+if not should_render_player(bA)then
+local bB=al[bA.Name]
+if bB then
+if bB.objects and bB.objects.holder then
+bB.objects.holder.Visible=false
+end
+set_highlight(bB,false)
+set_adornments(bB,false)
+for bC,bD in bB.drawings do
+bD.Visible=false
+end
+esp_hide_arrow(bB)
+end
+continue
+end
+
+local bB=al[bA.Name]
+
+if not bB then
+continue
+end
+
+local bC=bB.info.character
+local bD=bB.info.humanoid
+
+if not(bC and bC.Parent and bD and bD.Parent)then
+if bB.objects and bB.objects.holder then
+bB.objects.holder.Visible=false
+end
+set_highlight(bB,false)
+set_adornments(bB,false)
+for bE,bF in bB.drawings do
+bF.Visible=false
+end
+esp_hide_arrow(bB)
+
+bB.info.character=nil
+bB.info.humanoid=nil
+bB.info.rootpart=nil
+
+if bA.Character and not bB.refresh_pending and by>=bB.refresh_retry_at then
+bB.refresh_retry_at=by+5
+task.spawn(bB.refresh_descendants,bA.Character)
+end
+continue
+end
+
+local bE=bB.objects
+
+if not bE then
+continue
+end
+
+local bF=bD:GetState()
+if bD.Health<=0 or bF==Enum.HumanoidStateType.Dead then
+local bG=bE.holder
+bG.Visible=false
+set_highlight(bB,false)
+set_adornments(bB,false)
+for bH,bI in bB.drawings do
+bI.Visible=false
+end
+esp_hide_arrow(bB)
+continue
+end
+
+local bG=bD.RootPart or bC:FindFirstChild"HumanoidRootPart"
+if not bG then
+local bH=bE.holder
+if bH then
+bH.Visible=false
+end
+set_highlight(bB,false)
+set_adornments(bB,false)
+for bI,bJ in bB.drawings do
+bJ.Visible=false
+end
+esp_hide_arrow(bB)
+continue
+end
+
+local bH=bE.holder
+
+local bI=bG.Position
+local bJ=bI.X-a6
+local bK=bI.Y-a7
+local bL=bI.Z-a8
+local bM=a4(bJ*bJ+bK*bK+bL*bL)
+
+if bt>0 and bM>bt then
+if bH.Visible then bH.Visible=false end
+set_highlight(bB,false)
+set_adornments(bB,false)
+for bN,bO in bB.drawings do
+if bO.Visible then bO.Visible=false end
+end
+esp_hide_arrow(bB)
+continue
+end
+
+local bN,bO,bP=al:box_solve(bG,bM)
+
+if not bP then
+bH.Visible=false
+set_highlight(bB,false)
+set_adornments(bB,false)
+for bQ,bR in bB.drawings do
+bR.Visible=false
+end
+esp_offscreen_arrow(bB,bG.Position.X,bG.Position.Y,bG.Position.Z)
+continue
+end
+
+esp_hide_arrow(bB)
+
+if bH.Visible~=bP then
+bH.Visible=bP
+end
+
+set_highlight(bB,bs)
+set_adornments(bB,bs)
+
+if bs then
+local bQ=bE.highlight
+if bQ and bQ.Parent then
+local bR=ac.chams_visible or{Color=y(255,0,0),Transparency=0}
+bQ.FillColor=bR.Color
+bQ.FillTransparency=bR.Transparency or 0
+bQ.OutlineColor=bR.Color
+bQ.OutlineTransparency=bR.Transparency or 0
+end
+
+if bA~=b.LocalPlayer and(not bQ or not bQ.Parent)and not bB.refresh_pending and by>=bB.refresh_retry_at then
+bB.refresh_retry_at=by+5
+task.spawn(bB.refresh_descendants,bA.Character)
+end
+end
+
+local bQ=bE.outline_stroke
+local bR=bM>820 and 1 or 0
+if bQ.Transparency~=bR then
+bQ.Transparency=bR
+end
+
+local bS=bE.flag
+if br then
+if by-(bB.info.flag_checked or 0)>0.5 then
+bB.info.flag_checked=by
+bB.info.invisible=is_character_invisible(bC)
+end
+if bS.Visible~=bB.info.invisible then
+bS.Visible=bB.info.invisible
+end
+elseif bS.Visible then
+bS.Visible=false
+end
+
+if bx then
+local bT=bB.info.bones
+if bT then
+for bU=1,#a1 do
+local bV=bB.drawings[bU]
+if not bV then
+continue
+end
+
+local bW=bT[bU]
+if bW then
+local bX=bW[1]
+local bY=bW[2]
+local bZ,b_=project(bX.Position.X,bX.Position.Y,bX.Position.Z)
+if bZ and bZ>=0 and bZ<=bm and b_>=0 and b_<=bn then
+local b0,b1=project(bY.Position.X,bY.Position.Y,bY.Position.Z)
+if b0 and b0>=0 and b0<=bm and b1>=0 and b1<=bn then
+if not bV.Visible then bV.Visible=true end
+bV.From=n(bZ,b_)
+bV.To=n(b0,b1)
+continue
+end
+end
+end
+
+if bV.Visible then bV.Visible=false end
+end
+end
+else
+for bT,bU in bB.drawings do
+if bU.Visible then bU.Visible=false end
+end
+end
+
+local bT=bB.info.tool and bv and bE.holder or al.cache
+if bE.weapon.Parent~=bT then
+bE.weapon.Parent=bT
+bB.refresh_offsets()
+end
+
+local bU=w(bO.X,bO.Y)
+if bU~=bH.Position then
+bH.Position=bU
+end
+
+local bV=w(bN.X,bN.Y)
+if bV~=bH.Size then
+bH.Size=bV
+end
+
+if bu then
+local bW=bE.distance
+local bX=a5(bM/3.28).."M"
+if bW.Text~=bX then
+bW.Text=bX
+end
+end
+end
+end)
+
+function al.unload(bq)
+for br,bs in b:GetPlayers()do
+al:remove_object(bs)
+end
+
+al.connection:Disconnect()
+h:UnbindFromRenderStep"PrivESP"
+al.player_added:Disconnect()
+al.player_removed:Disconnect()
+
+al.cache:Destroy()
+al.screengui:Destroy()
+
+al=nil
+end
+
+end
+
+for a4,a5 in b:GetPlayers()do
+al:create_object(a5)
+end
+
+al.player_added=b.PlayerAdded:Connect(function(a4)
+al:create_object(a4)
+end)
+
+al.player_removed=b.PlayerRemoving:Connect(function(a4)
+al:remove_object(a4)
+end)
+
+task.wait()
+al.refresh_elements()
