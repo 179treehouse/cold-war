@@ -3763,6 +3763,8 @@ end
 
 
 
+
+
 local function weapon_chams_targets(aL)
 local aM={}
 
@@ -3782,18 +3784,24 @@ table.insert(aM,aP)
 end
 end
 
-local aP=c and c:FindFirstChild"Ignore"
+local aP=d and d:FindFirstChild"ViewmodelCharacter"
 
 if aP then
-local aQ=aP:FindFirstChild(aN.."Viewmodel")
+table.insert(aM,aP)
+end
+
+local aQ=c and c:FindFirstChild"Ignore"
 
 if aQ then
-local aR=aQ:FindFirstChild(aN)
+local aR=aQ:FindFirstChild(aN.."Viewmodel")
 
 if aR then
-table.insert(aM,aR)
+local aS=aR:FindFirstChild(aN)
+
+if aS then
+table.insert(aM,aS)
 else
-table.insert(aM,aQ)
+table.insert(aM,aR)
 end
 end
 end
@@ -4796,78 +4804,82 @@ end
 
 
 
-local bg,bh=pcall(require,game:GetService"ReplicatedStorage".Client.Tools.Weapon.Muzzle:WaitForChild"Shooter")
-if bg and type(bh)=="table"and type(bh.fire)=="function"then
-local bi=bh.fire
 
-bh.fire=function(bj,bk)
-local bl=bj and bj.config
-local bm=bl and bl.BulletSettings and bl.BulletSettings[bk]
-local bn=ac.no_spread and bm~=nil
 
-if bn then
-local bo=bm.Spread
-bm.Spread=0
+local bg=game:GetService"ReplicatedStorage".Client.Tools.Weapon.Muzzle
+local bh,bi=pcall(require,bg and bg:FindFirstChild"Discharge")
+if bh and type(bi)=="table"and type(bi.fire)=="function"then
+local bj=bi.fire
 
-local bp,bq=pcall(bi,bj,bk)
+bi.fire=function(bk,bl)
+local bm=bk and bk.config
+local bn=bm and bm.BulletSettings and bm.BulletSettings[bl]
+local bo=ac.no_spread and bn~=nil
 
-bm.Spread=bo
+if bo then
+local bp=bn.Spread
+bn.Spread=0
 
-if not bp then
-error(bq,0)
+local bq,br=pcall(bj,bk,bl)
+
+bn.Spread=bp
+
+if not bq then
+error(br,0)
 end
 
-return bq
+return br
 end
 
-return bi(bj,bk)
-end
-end
-
-
-
-local bi,bj=pcall(require,game:GetService"ReplicatedStorage".Client.Tools.Weapon.controllers:WaitForChild"RecoilController")
-if bi and type(bj)=="table"and type(bj.getRecoilMult)=="function"then
-local bk=bj.getRecoilMult
-
-bj.getRecoilMult=function(...)
-local bl=bk(...)
-
-if typeof(bl)=="number"then
-bl=bl*(ac.recoil_mult or 1)
-end
-
-return bl
+return bj(bk,bl)
 end
 end
 
 
 
 
+local bj,bk=pcall(require,game:GetService"ReplicatedStorage".Client.Tools.Weapon.controllers:WaitForChild"RecoilController")
+if bj and type(bk)=="table"and type(bk.recoilScale)=="function"then
+local bl=bk.recoilScale
 
-local bk,bl=pcall(require,game:GetService"ReplicatedStorage".Client:WaitForChild"Spring")
-if bk and type(bl)=="table"and type(bl.create)=="function"then
-local bm=bl.create
+bk.recoilScale=function(...)
+local bm=bl(...)
 
-local function is_sway_spring(bn)
-return bn.Mass==2 and bn.Force==80 and bn.Damping==10 and bn.Speed==2
+if typeof(bm)=="number"then
+bm=bm*(ac.recoil_mult or 1)
 end
 
-bl.create=function(...)
-local bn=bm(...)
-local bo=bn.update
-
-bn.update=function(bp,bq)
-if ac.no_sway and is_sway_spring(bp)then
-bp.Target=Vector3.new()
-bp.Position=Vector3.new()
-bp.Velocity=Vector3.new()
-return bp.Position
+return bm
 end
-return bo(bp,bq)
 end
 
-return bn
+
+
+
+
+local bl,bm=pcall(require,game:GetService"ReplicatedStorage".Client:WaitForChild"Spring")
+if bl and type(bm)=="table"and type(bm.create)=="function"then
+local bn=bm.create
+
+local function is_sway_spring(bo)
+return bo.Mass==2 and bo.Force==80 and bo.Damping==10 and bo.Speed==2
+end
+
+bm.create=function(...)
+local bo=bn(...)
+local bp=bo.update
+
+bo.update=function(bq,br)
+if ac.no_sway and is_sway_spring(bq)then
+bq.Target=Vector3.new()
+bq.Position=Vector3.new()
+bq.Velocity=Vector3.new()
+return bq.Position
+end
+return bp(bq,br)
+end
+
+return bo
 end
 end
 
@@ -4897,8 +4909,8 @@ end
 
 a_=a2
 local a3,a4=pcall(require,game:GetService"ReplicatedStorage".Shared:WaitForChild"WeaponConfigManager")
-if a3 and type(a4)=="table"and type(a4.GetAllMuzzlesConfig)=="function"then
-local a5=a4:GetAllMuzzlesConfig(a2.Name)
+if a3 and type(a4)=="table"and type(a4.MuzzleConfigsOf)=="function"then
+local a5=a4:MuzzleConfigsOf(a2.Name)
 local a6=a5 and a5[1]
 if a6 and a6.BulletSettings and a6.BulletSettings[1]and a6.BulletSettings[1].MuzzleVelocity then
 a0=a6.BulletSettings[1].MuzzleVelocity
