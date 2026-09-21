@@ -4279,11 +4279,11 @@ end
 
 local a_=game.Players.LocalPlayer:WaitForChild"PlayerScripts"
 local a0,a1=pcall(require,a_:WaitForChild"BallisticsClient":WaitForChild"ClientFire")
-if not a0 or type(a1)~="table"or type(a1.fireVolley)~="function"then
+if not a0 or type(a1)~="table"or type(a1.o9HACKmCVc)~="function"then
 return
 end
 
-local a2=a1.fireVolley
+local a2=a1.o9HACKmCVc
 
 
 
@@ -4704,7 +4704,7 @@ end
 
 
 
-a1.fireVolley=function(bg,bh,bi,bj,bk,bl)
+a1.o9HACKmCVc=function(bg,bh,bi,bj,bk,bl)
 local bm=getgenv().silent_aim_lock
 local bn=game.Players.LocalPlayer.Character
 local bo=bg==nil or(bn and bg.Parent==bn)
@@ -4838,11 +4838,12 @@ end
 
 
 
-local bj,bk=pcall(require,game:GetService"ReplicatedStorage".Client.Tools.Weapon.controllers:WaitForChild"RecoilController")
-if bj and type(bk)=="table"and type(bk.recoilScale)=="function"then
-local bl=bk.recoilScale
 
-bk.recoilScale=function(...)
+local bj,bk=pcall(require,game:GetService"ReplicatedStorage".Client.Tools.Weapon.controllers:WaitForChild"RecoilController")
+if bj and type(bk)=="table"and type(bk.fjxYZvp_GC)=="function"then
+local bl=bk.fjxYZvp_GC
+
+bk.fjxYZvp_GC=function(...)
 local bm=bl(...)
 
 if typeof(bm)=="number"then
